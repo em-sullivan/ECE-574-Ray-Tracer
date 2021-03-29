@@ -64,6 +64,27 @@ Hittable_List random_balls()
     return world;
 }
 
+Hittable_List three_balls()
+{
+    // Make a simple world of three balls
+    // For Eric's poor slow computer :(
+    Hittable_List world;
+
+    auto ground = make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
+    auto center = make_shared<Lambertian>(Color(0.1, 0.2, 0.5));
+    auto left = make_shared<Dielectric>(1.25);
+    auto right = make_shared<Metal>(Color(0.8, 0.6, 0.2), 0.0);
+
+    // Green ball ground
+    // Blue ball sandwiched between glass and metal balls
+    world.add(make_shared<Sphere>(Point3(0.0, -100.5, -1.0), 100.0, ground));
+    world.add(make_shared<Sphere>(Point3(0.0, 0.0, -1.0), 0.5, center));
+    world.add(make_shared<Sphere>(Point3(-1.0, 0.0, -1.0), 0.5, left));
+    world.add(make_shared<Sphere>(Point3(1.0, 0.0, -1.0), 0.5, right));
+
+    return world;
+}
+
 Color ray_color(const Ray &r, const Hittable &world, int depth)
 {
     hit_record rec;
@@ -88,26 +109,42 @@ Color ray_color(const Ray &r, const Hittable &world, int depth)
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
     // Image
-    const auto aspect_ratio = 3.0 / 2.0;
+    const auto aspect_ratio = 16.0 / 9.0;
     int image_width = 400;
     int image_height = static_cast<int>(image_width / aspect_ratio);
     int samples_per_pixel = 500;
     int max_depth = 50;
 
     // World
+    // Generate three balls
+    auto world = three_balls();
+        
+    // This worlds camera
+    auto lookfrom = Point3(0, 0, 5);
+    auto lookat = Point3(0, 0, -1);
+    auto vup = Vec3(0, 1, 0);
+    auto fov = 20;
+    auto dist_to_focus = (lookfrom-lookat).length();
+    auto aperture = 0.1;
+
+    /*
+    // Generate random balls - takes a while!
     auto world = random_balls();
 
-    // Camera
-    // Virtual viewpoint to pass scene rays
+    // Many balls camera
     auto lookfrom = Point3(13, 2, 3);
     auto lookat = Point3(0, 0, 0);
     auto vup = Vec3(0, 1, 0);
+    auto fov = 20;
     auto dist_to_focus = 10.0;
     auto aperture = .1;
-    Camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+    */
+
+    // Camera
+    Camera cam(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus);
 
     // Output File
     std::fstream file;

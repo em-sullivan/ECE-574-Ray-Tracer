@@ -3,18 +3,18 @@ CFLAGS = -Wall -g
 OBJS = Color.o Vec3.o Ray.o Sphere.o Hittable_List.o Camera.o Material.o
 
 sample: main.o $(OBJS)
-	$(CC) $(CFLAGS) -o sample main.o $(OBJS)
+	$(CC) $(CFLAGS) -o sample.elf main.o $(OBJS)
 
 #main.o: main.cpp
 #	$(CC) $(CFLAGS) -c main.cpp
 
 create-image:
-	./sample
+	./sample.elf
 	convert out.ppm out.jpg
 	#rm out.ppm
 
 clean:
-	rm -f *.o *.ppm out.jpg sample *core
+	rm -f *.o *.ppm out.jpg *.elf *core
 
 # Dependencies
 Ray.o: Ray.h
