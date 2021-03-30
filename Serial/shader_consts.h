@@ -17,28 +17,28 @@ using std::make_shared;
 using std::sqrt;
 
 // Constants
-#define INF std::numeric_limits<double>::infinity()
+#define INF std::numeric_limits<float>::infinity()
 #define PI 3.1415926535897932385
 
 // Utility function to convert degrees to rads
-inline double deg_to_rad(double degrees)
+inline float deg_to_rad(float degrees)
 {
     return degrees * PI / 180.0;
 }
 
-inline double random_double()
+inline float random_float()
 {
-    // Return a (pseduo) random double between 0.0 and 1.0
+    // Return a (pseduo) random float between 0.0 and 1.0
     return rand() / (RAND_MAX + 1.0);
 }
 
-inline double random_double(double min, double max)
+inline float random_float(float min, float max)
 {
-    // Return a (pseduo) random double between the min and max value
-    return min + (max - min) * random_double();
+    // Return a (pseduo) random float between the min and max value
+    return min + (max - min) * random_float();
 }
 
-inline double clamp(double x, double min, double max)
+inline float clamp(float x, float min, float max)
 {
     if (x < min) return min;
     if (x > max) return max;

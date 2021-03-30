@@ -27,7 +27,7 @@ Vec3 Ray::direction() const
     return dir;
 }
 
-Point3 Ray::at(double t) const
+Point3 Ray::at(float t) const
 {
     //Performs Ray Calculation 
     return orig + t * dir;

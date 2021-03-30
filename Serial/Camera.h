@@ -12,9 +12,9 @@
 class Camera
 {
 public:
-    Camera(Point3 lookfrom, Point3 lookat, Vec3 vup, double vfov, double aspect_ratio,
-        double aperture, double font_dist);
-    Ray get_ray(double u, double v);
+    Camera(Point3 lookfrom, Point3 lookat, Vec3 vup, float vfov, float aspect_ratio,
+        float aperture, float font_dist);
+    Ray get_ray(float u, float v);
 
 private:
     Point3 origin;
@@ -22,7 +22,7 @@ private:
     Vec3 horizontal;
     Vec3 vertical;
     Vec3 u, v, w;
-    double lens_radius;
+    float lens_radius;
 };
 
 #endif // CAMERA_H

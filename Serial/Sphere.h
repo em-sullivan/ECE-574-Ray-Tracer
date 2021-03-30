@@ -15,13 +15,13 @@ class Sphere : public Hittable
 public:
     // Constructors
     Sphere();
-    Sphere(Point3 cen, double r, shared_ptr<Material> m);
+    Sphere(Point3 cen, float r, shared_ptr<Material> m);
 
-    virtual bool hit(const Ray &r, double t_min, double t_max, hit_record &rec) const override;
+    virtual bool hit(const Ray &r, float t_min, float t_max, hit_record &rec) const override;
 
 private:
     Point3 center;
-    double radius;
+    float radius;
     shared_ptr<Material> mat_ptr;
 
 };

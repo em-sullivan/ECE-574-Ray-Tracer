@@ -4,8 +4,8 @@
 
 #include "Camera.h"
 
-Camera::Camera(Point3 lookfrom, Point3 lookat, Vec3 vup, double vfov, double aspect_ratio,
-    double aperture, double focus_dist)
+Camera::Camera(Point3 lookfrom, Point3 lookat, Vec3 vup, float vfov, float aspect_ratio,
+    float aperture, float focus_dist)
 {
     auto theta = deg_to_rad(vfov);
     auto h = tan(theta / 2);
@@ -24,7 +24,7 @@ Camera::Camera(Point3 lookfrom, Point3 lookat, Vec3 vup, double vfov, double asp
     lens_radius = aperture / 2;
 }
 
-Ray Camera::get_ray(double s, double t)
+Ray Camera::get_ray(float s, float t)
 {
     Vec3 rd = lens_radius * randomInUnitDisk();
     Vec3 offset = u * rd.x() + v * rd.y();

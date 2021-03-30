@@ -28,7 +28,7 @@ public:
      * B = Direction
      * t = Ray
      */
-    Point3 at(double t) const;
+    Point3 at(float t) const;
 
 private:
 

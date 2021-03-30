@@ -5,14 +5,14 @@
 #include "Sphere.h"
 
 
-Sphere::Sphere(Point3 cen, double r, shared_ptr<Material> m)
+Sphere::Sphere(Point3 cen, float r, shared_ptr<Material> m)
 {
     center = cen;
     radius = r;
     mat_ptr = m;
 }
 
-bool Sphere::hit(const Ray &r, double t_min, double t_max, hit_record &rec) const
+bool Sphere::hit(const Ray &r, float t_min, float t_max, hit_record &rec) const
 {
     Vec3 oc = r.origin() - center;
     auto a = r.direction().lengthSquared();

@@ -18,43 +18,43 @@ public:
 
     // Constructors
     Vec3();
-    Vec3(double e0, double e1, double e2);
+    Vec3(float e0, float e1, float e2);
     
     // Getters
-    double x() const;
-    double y() const;
-    double z() const;
+    float x() const;
+    float y() const;
+    float z() const;
 
     // Operators (Overloaded)
     Vec3 operator-() const;
-    double operator[](int i) const;
-    double& operator[](int i);
+    float operator[](int i) const;
+    float& operator[](int i);
     Vec3& operator+=(const Vec3 &v);
     Vec3& operator-=(const Vec3 &v);
-    Vec3& operator*=(const double t);
-    Vec3& operator/=(const double t);
+    Vec3& operator*=(const float t);
+    Vec3& operator/=(const float t);
 
-    double length() const;
-    double lengthSquared() const;
+    float length() const;
+    float lengthSquared() const;
     bool nearZero() const;
 
     inline static Vec3 random() {
-        return Vec3(random_double(), random_double(), random_double());
+        return Vec3(random_float(), random_float(), random_float());
     }
 
-    inline static Vec3 random(double min, double max) {
-        return Vec3(random_double(min, max), random_double(min, max), random_double(min, max));
+    inline static Vec3 random(float min, float max) {
+        return Vec3(random_float(min, max), random_float(min, max), random_float(min, max));
     }
 
 private:
-    double coords[3];
+    float coords[3];
 };
 
 // Utility Functions
 Vec3 randomUnitVector();
 Vec3 randomInHemisphere(const Vec3 &normal);
 Vec3 reflect(const Vec3 &v, const Vec3 &n);
-Vec3 refract(const Vec3 &v1, const Vec3 &v2, double eta_over_eta);
+Vec3 refract(const Vec3 &v1, const Vec3 &v2, float eta_over_eta);
 Vec3 randomInUnitDisk();
 
 inline std::ostream& operator<<(std::ostream &out, const Vec3 &v)
@@ -77,22 +77,22 @@ inline Vec3 operator*(const Vec3 &v1, const Vec3 &v2)
     return Vec3(v1.x() * v2.x(), v1.y() * v2.y(), v1.z() * v2.z());
 }
 
-inline Vec3 operator*(const double t, const Vec3 &v)
+inline Vec3 operator*(const float t, const Vec3 &v)
 {
     return Vec3(v.x() * t, v.y() * t, v.z() * t); 
 }
 
-inline Vec3 operator*(const Vec3 &v, const double t)
+inline Vec3 operator*(const Vec3 &v, const float t)
 {
     return t * v; 
 }
 
-inline Vec3 operator/(const Vec3 &v, double t)
+inline Vec3 operator/(const Vec3 &v, float t)
 {
     return (1 / t) * v;
 }
 
-inline double dot(const Vec3 &v1, const Vec3 &v2)
+inline float dot(const Vec3 &v1, const Vec3 &v2)
 {
     return v1.x() * v2.x()
          + v1.y() * v2.y()
@@ -123,7 +123,7 @@ inline Vec3 randomInUnitSphere()
 //Vec3 randomUnitVector();
 //Vec3 randomInHemisphere(const Vec3 &normal);
 //Vec3 reflect(const Vec3 &v, const Vec3 &n);
-//Vec3 refract(const Vec3 &v1, const Vec3 &v2, double eta_over_eta);
+//Vec3 refract(const Vec3 &v1, const Vec3 &v2, float eta_over_eta);
 
 // Aliases for Vec3
 using Color = Vec3;

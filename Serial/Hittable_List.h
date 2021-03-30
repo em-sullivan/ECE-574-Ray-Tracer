@@ -22,7 +22,7 @@ public:
     void clear();
     void add(shared_ptr<Hittable> object);
 
-    virtual bool hit(const Ray &r, double t_min, double t_max, hit_record &rec) const override;
+    virtual bool hit(const Ray &r, float t_min, float t_max, hit_record &rec) const override;
 
 private:
     std::vector<shared_ptr<Hittable>> objects;

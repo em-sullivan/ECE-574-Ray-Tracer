@@ -25,11 +25,11 @@ void Hittable_List::add(shared_ptr<Hittable> object)
     objects.push_back(object);
 }
 
-bool Hittable_List::hit(const Ray &r, double t_min, double t_max, hit_record &rec) const
+bool Hittable_List::hit(const Ray &r, float t_min, float t_max, hit_record &rec) const
 {
     hit_record temp;
     bool hit_any = false;
-    auto closest = t_max;
+    float closest = t_max;
 
     // Loop through the objects in the Hittable List
     for (const auto &object: objects) {

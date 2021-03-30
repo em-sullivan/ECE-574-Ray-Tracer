@@ -15,24 +15,24 @@ Vec3::Vec3()
     coords[2] = 0;
 }
 
-Vec3::Vec3(double e0, double e1, double e2)
+Vec3::Vec3(float e0, float e1, float e2)
 {
     coords[0] = e0;
     coords[1] = e1;
     coords[2] = e2;
 }
 
-double Vec3::x() const
+float Vec3::x() const
 {
     return coords[0];
 }
 
-double Vec3::y() const
+float Vec3::y() const
 {
     return coords[1];
 }
 
-double Vec3::z() const
+float Vec3::z() const
 {
     return coords[2];
 }
@@ -42,7 +42,7 @@ Vec3 Vec3::operator-() const
     return Vec3(-coords[0], -coords[1], -coords[2]);
 }
 
-double Vec3::operator[](int i) const
+float Vec3::operator[](int i) const
 {
     // If index is out of range, return left
     // or rightmost coordinate
@@ -53,7 +53,7 @@ double Vec3::operator[](int i) const
     return coords[i];
 }
 
-double& Vec3::operator[](int i)
+float& Vec3::operator[](int i)
 {
     // If index is out of range, return left
     // or rightmost coordinate
@@ -81,7 +81,7 @@ Vec3& Vec3::operator-=(const Vec3 &v)
     return *this;
 }
 
-Vec3& Vec3::operator*=(const double t)
+Vec3& Vec3::operator*=(const float t)
 {
     // Multiply all elements in a vector by a constant
     coords[0] *= t;
@@ -90,18 +90,18 @@ Vec3& Vec3::operator*=(const double t)
     return *this;
 }
 
-Vec3& Vec3::operator/=(const double t)
+Vec3& Vec3::operator/=(const float t)
 {
     // Divie all elements in a vecotr by a constant
     return *this *= 1 / t;
 }
 
-double Vec3::length() const
+float Vec3::length() const
 {
     return sqrt(lengthSquared());
 }
 
-double Vec3::lengthSquared() const
+float Vec3::lengthSquared() const
 {
     return coords[0] * coords[0] +
         coords[1] * coords[1] +
@@ -111,7 +111,7 @@ double Vec3::lengthSquared() const
 bool Vec3::nearZero() const
 {
     // Return true if the vector is close to zero in all dimensions
-    const auto s = 1e-8;
+    const float s = 1e-8;
     return (fabs(coords[0]) < s) && fabs(coords[1] < s) && fabs(coords[2] < 2);
 }
 
@@ -136,9 +136,9 @@ Vec3 reflect(const Vec3 &v, const Vec3 &n)
     return v - 2 * dot(v, n) * n;
 }
 
-Vec3 refract(const Vec3 &v1, const Vec3 &v2, double etai_over_etat)
+Vec3 refract(const Vec3 &v1, const Vec3 &v2, float etai_over_etat)
 {
-    auto cos_theta = fmin(dot(-v1, v2), 1.0);
+    float cos_theta = fmin(dot(-v1, v2), 1.0);
     Vec3 r_out_perp = etai_over_etat * (v1 + cos_theta * v2);
     Vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.lengthSquared())) * v2;
     return r_out_perp + r_out_parallel;
@@ -147,7 +147,7 @@ Vec3 refract(const Vec3 &v1, const Vec3 &v2, double etai_over_etat)
 Vec3 randomInUnitDisk()
 {
     while (true) {
-        auto p = Vec3(random_double(-1, 1), random_double(-1, 1), 0);
+        auto p = Vec3(random_float(-1, 1), random_float(-1, 1), 0);
         if (p.lengthSquared() >= 1) continue;
         return p;
     }

@@ -33,26 +33,26 @@ class Metal : public Material
 {
 public:
     // Constructor
-    Metal(const Color &a, double in_fuzz);
+    Metal(const Color &a, float in_fuzz);
 
     virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
 
 private:
     Color albedo;
-    double fuzz;
+    float fuzz;
 };
 
 class Dielectric : public Material
 {
 public:
-    Dielectric(double refraction_index);
+    Dielectric(float refraction_index);
     virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
-    static double reflectance(double cosine, double ref);
+    static float reflectance(float cosine, float ref);
 
 private:
-    double refraction;
+    float refraction;
     /*
-    static double reflectance(double cosine, double ref)
+    static float reflectance(float cosine, float ref)
     {
         // Use Sclick's approximation for reflectance
         auto r0 = (1 - ref) / (1 + ref);

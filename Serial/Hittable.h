@@ -15,7 +15,7 @@ struct hit_record {
     Point3 p;
     Vec3 normal;
     shared_ptr<Material> mat_ptr;
-    double t;
+    float t;
     bool front_face;
 
     inline void set_face_normal(const Ray &r, const Vec3 &outward_normal)
@@ -28,7 +28,7 @@ struct hit_record {
 class Hittable
 {
 public:
-    virtual bool hit(const Ray &r, double t_min, double t_mix, hit_record &rec) const = 0;
+    virtual bool hit(const Ray &r, float t_min, float t_mix, hit_record &rec) const = 0;
 };
 
 #endif // HITTABLE_H
