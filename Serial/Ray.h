@@ -13,11 +13,12 @@ public:
 
     // Constructors
     Ray();
-    Ray(const Point3 &origin, const Point3 &direction);
+    Ray(const Point3 &origin, const Point3 &direction, float time = 0.0);
 
     // Getters
     Point3 origin() const;
     Vec3 direction() const;
+    float time() const;
 
 
     /*
@@ -34,6 +35,7 @@ private:
 
     Point3 orig;
     Vec3 dir;
+    float tm;
 };
 
 #endif // RAY_H

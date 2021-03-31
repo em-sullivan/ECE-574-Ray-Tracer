@@ -11,6 +11,7 @@
 #include "Sphere.h"
 #include "Camera.h"
 #include "Material.h"
+#include "Moving_Sphere.h"
 
 Hittable_List random_balls()
 {
@@ -72,6 +73,7 @@ Hittable_List three_balls()
 
     auto ground = make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
     auto center = make_shared<Lambertian>(Color(0.1, 0.2, 0.5));
+    auto tiny = make_shared<Lambertian>(Color(1, 0, 1));
     auto left = make_shared<Dielectric>(1.25);
     auto right = make_shared<Metal>(Color(0.8, 0.6, 0.2), 0.0);
 
@@ -81,6 +83,10 @@ Hittable_List three_balls()
     world.add(make_shared<Sphere>(Point3(0.0, 0.0, -1.0), 0.5, center));
     world.add(make_shared<Sphere>(Point3(-1.0, 0.0, -1.0), 0.5, left));
     world.add(make_shared<Sphere>(Point3(1.0, 0.0, -1.0), 0.5, right));
+
+    // Tiny lil guy moving around
+    world.add(make_shared<Moving_Sphere>(Point3(0.1, -0.5, 1.0), Point3(0.0, -0.5, 1.0),
+        0.0, 1.0, 0.1, tiny));
 
     return world;
 }
@@ -144,7 +150,7 @@ int main(int argc, char **argv)
     */
 
     // Camera
-    Camera cam(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus);
+    Camera cam(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
     // Output File
     std::fstream file;
