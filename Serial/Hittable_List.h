@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include "Hittable.h"
+#include "Aabb.h"
 
 using std::shared_ptr;
 using std::make_shared;
@@ -23,8 +24,9 @@ public:
     void add(shared_ptr<Hittable> object);
 
     virtual bool hit(const Ray &r, float t_min, float t_max, hit_record &rec) const override;
+    virtual bool bounding_box(float time0, float time1, Aabb &output_box) const override;
 
-private:
+//private:
     std::vector<shared_ptr<Hittable>> objects;
 };
 

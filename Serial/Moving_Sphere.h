@@ -9,6 +9,7 @@
 #include "Ray.h"
 #include "Hittable.h"
 #include "Material.h"
+#include "Aabb.h"
 #include "shader_consts.h"
 
 class Moving_Sphere : public Hittable 
@@ -27,6 +28,7 @@ public:
     );
 
     virtual bool hit(const Ray &r, float t_min, float t_max, hit_record &rec) const override;
+    virtual bool bounding_box(float time0, float time1, Aabb &output_box) const override;
     Point3 center(float time) const;
 
 private:

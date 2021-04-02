@@ -45,6 +45,11 @@ inline float clamp(float x, float min, float max)
     return x;
 }
 
+inline int random_int(int min, int max)
+{
+    return static_cast<int>(random_float(min, max + 1));
+}
+
 // Some common headers
 //#include "Ray.h"
 //#include "Vec3.h"

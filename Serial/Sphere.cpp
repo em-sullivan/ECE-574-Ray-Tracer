@@ -37,6 +37,32 @@ bool Sphere::hit(const Ray &r, float t_min, float t_max, hit_record &rec) const
     Vec3 outward_normal = (rec.p - center) / radius;
     rec.set_face_normal(r, outward_normal);
     //rec.normal = (rec.p - center) / radius;
+    get_sphere_uv(outward_normal, rec.u, rec.v);
     rec.mat_ptr = mat_ptr;
     return true;
+}
+
+bool Sphere::bounding_box(float time0, float time1, Aabb &output_box) const
+{
+    output_box = Aabb(
+        center - Vec3(radius, radius, radius),
+        center + Vec3(radius, radius, radius)
+    );
+
+    return true;
+}
+
+void Sphere::get_sphere_uv(Point3 &p, float &u, float &v)
+{
+    /*
+     * P - A givne point on the sphere of radius one, centered at origin
+     * u - return value [0,1] of angle around Y axi from X=-1
+     * v - return value [0, 1] of angle from y=-1 tp y=1
+     */
+
+    auto theta = acos(-p.y());
+    auto phi = atan2(-p.z(), p.x()) + PI;
+
+    u = phi / (2 * PI);
+    v = theta / PI;
 }

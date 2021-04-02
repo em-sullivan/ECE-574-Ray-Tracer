@@ -44,3 +44,21 @@ bool Hittable_List::hit(const Ray &r, float t_min, float t_max, hit_record &rec)
 
     return hit_any;
 }
+
+bool Hittable_List::bounding_box(float time0, float time1, Aabb &output_box) const
+{
+    // If hitable list is empty
+    if (objects.empty()) return false;
+
+    Aabb temp;
+    bool first_box = true;
+
+    for (const auto &object : objects) {
+        if (!object->bounding_box(time0, time1, temp)) return false;
+
+        output_box = first_box ? temp : surrounding_box(output_box, temp);
+        first_box = false;
+    }
+
+    return true;
+}

@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include "shader_consts.h"
 #include "Color.h"
@@ -71,7 +72,7 @@ Hittable_List three_balls()
     // For Eric's poor slow computer :(
     Hittable_List world;
 
-    auto ground = make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
+    auto ground = make_shared<Checkered>(Color(0.8, 0.8, 0.0), Color(0, 0, 0));
     auto center = make_shared<Lambertian>(Color(0.1, 0.2, 0.5));
     auto tiny = make_shared<Lambertian>(Color(1, 0, 1));
     auto left = make_shared<Dielectric>(1.25);
@@ -79,7 +80,7 @@ Hittable_List three_balls()
 
     // Green ball ground
     // Blue ball sandwiched between glass and metal balls
-    world.add(make_shared<Sphere>(Point3(0.0, -100.5, -1.0), 100.0, ground));
+    world.add(make_shared<Sphere>(Point3(0.0, -100.5, -1.0), 100.0, make_shared<Lambertian>(ground)));
     world.add(make_shared<Sphere>(Point3(0.0, 0.0, -1.0), 0.5, center));
     world.add(make_shared<Sphere>(Point3(-1.0, 0.0, -1.0), 0.5, left));
     world.add(make_shared<Sphere>(Point3(1.0, 0.0, -1.0), 0.5, right));
@@ -89,6 +90,18 @@ Hittable_List three_balls()
         0.0, 1.0, 0.1, tiny));
 
     return world;
+}
+
+Hittable_List two_bit_balls()
+{
+    Hittable_List objects;
+
+    auto checker = make_shared<Checkered>(Color(0.9, 0.9, 0.9), Color(1, 0, 1));
+
+    objects.add(make_shared<Sphere>(Point3(0, -10, 0), 10, make_shared<Lambertian>(checker)));
+    objects.add(make_shared<Sphere>(Point3(0, 10, 0), 10, make_shared<Lambertian>(checker)));
+
+    return objects;
 }
 
 Color ray_color(const Ray &r, const Hittable &world, int depth)
@@ -117,6 +130,14 @@ Color ray_color(const Ray &r, const Hittable &world, int depth)
 
 int main(int argc, char **argv)
 {
+    int image;
+    if (argc < 2) {
+        image = 0;
+    } else {
+        std::stringstream str_to_int(argv[1]);
+        str_to_int >> image;
+    }
+    
     // Image
     const float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
@@ -125,29 +146,50 @@ int main(int argc, char **argv)
     int max_depth = 50;
 
     // World
-    // Generate three balls
-    auto world = three_balls();
+    Hittable_List world;
+    Point3 lookfrom;
+    Point3 lookat;
+    Point3 vup;
+    float fov;
+    float aperture;
+    float dist_to_focus;
+
+
+    switch(image) {
+        case 1:
+            // Generate three balls
+            world = three_balls();
         
-    // This worlds camera
-    auto lookfrom = Point3(0, 0, 5);
-    auto lookat = Point3(0, 0, -1);
-    auto vup = Vec3(0, 1, 0);
-    auto fov = 20;
-    float dist_to_focus = (lookfrom-lookat).length();
-    float aperture = 0.1;
+            // This worlds camera
+            lookfrom = Point3(0, 0, 5);
+            lookat = Point3(0, 0, -1);
+            vup = Vec3(0, 1, 0);
+            fov = 20;
+            dist_to_focus = (lookfrom-lookat).length();
+            aperture = 0.1;
+            break;
 
-    /*
-    // Generate random balls - takes a while!
-    auto world = random_balls();
+        case 2:
+            // Generate random balls - takes a while!
+            world = random_balls();
 
-    // Many balls camera
-    auto lookfrom = Point3(13, 2, 3);
-    auto lookat = Point3(0, 0, 0);
-    auto vup = Vec3(0, 1, 0);
-    auto fov = 20;
-    auto dist_to_focus = 10.0;
-    auto aperture = .1;
-    */
+            lookfrom = Point3(13, 2, 3);
+            lookat = Point3(0, 0, 0);
+            vup = Vec3(0, 1, 0);
+            fov = 20;
+            dist_to_focus = 10.0;
+            aperture = .1;
+            break;
+
+        default:
+            world = two_bit_balls();
+            lookfrom = Point3(13, 2, 3);
+            lookat = Point3(0, 0, 0);
+            vup = Vec3(0, 1, 0);
+            fov = 20;
+            dist_to_focus = 10.0;
+            aperture = 0;
+    }
 
     // Camera
     Camera cam(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);

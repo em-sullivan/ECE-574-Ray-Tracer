@@ -10,7 +10,12 @@ bool Material::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray
     return false;
 }
 
-Lambertian::Lambertian(const Color &a)
+//Lambertian::Lambertian(const Color &a)
+//{
+//    albedo = make_shared<Solid_Color>(a);
+//}
+
+Lambertian::Lambertian(shared_ptr<Texture> a)
 {
     albedo = a;
 }
@@ -25,7 +30,7 @@ bool Lambertian::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, R
         scatter_dir = rec.normal;
 
     scattered = Ray(rec.p, scatter_dir, r_in.time());
-    attenuation = albedo;
+    attenuation = albedo->value(rec.u, rec.v, rec.p);
     return true;
 }
 

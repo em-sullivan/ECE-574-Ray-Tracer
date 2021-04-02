@@ -49,6 +49,22 @@ bool Moving_Sphere::hit(const Ray &r, float t_min, float t_max, hit_record &rec)
     return true;
 }
 
+bool Moving_Sphere::bounding_box(float t0, float t1, Aabb &output_box) const
+{
+    Aabb box0(
+        center(t0) - Vec3(radius, radius, radius),
+        center(t0) + Vec3(radius, radius, radius)
+    );
+
+    Aabb box1(
+        center(t1) - Vec3(radius, radius, radius),
+        center(t1) + Vec3(radius, radius, radius)
+    );
+
+    output_box = surrounding_box(box0, box1);
+    return true;
+}
+
 Point3 Moving_Sphere::center(float time) const
 {
     return cen0 + ((time - time0) / (time1 - time0)) * (cen1 - cen0);
