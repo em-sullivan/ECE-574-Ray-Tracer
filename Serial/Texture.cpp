@@ -5,6 +5,9 @@
 
 #include "Texture.h"
 
+/*
+ * Solid Color
+ */
 Solid_Color::Solid_Color(Color c)
 {
     color_v = c;
@@ -19,6 +22,10 @@ Color Solid_Color::value(float u, float v, const Point3 &p) const
 {
     return color_v;
 }
+
+/*
+ * Solid Checkard pattern
+ */
 
 Checkered::Checkered(shared_ptr<Texture> even, shared_ptr<Texture> odd)
 {
@@ -39,4 +46,22 @@ Color Checkered::value(float u, float v, const Point3 &p) const
         return odd_tiles->value(u, v, p);
     else
         return even_tiles->value(u, v, p);
+}
+
+Noise_Text::Noise_Text()
+{
+    scale = 1.0;
+}
+
+Noise_Text::Noise_Text(float sc)
+{
+    scale = sc;
+}
+
+Color Noise_Text::value(float u, float v, const Point3 &p) const
+{
+    // Generator noise
+    // return Color(1, 1, 1) * noise.turb(p * scale);
+    // Comments out straight noise, igves a marbel like effect
+    return Color(1, 1, 1) * 0.5 * (1 + sin(scale * p.z() + 10 * noise.turb(p)));
 }

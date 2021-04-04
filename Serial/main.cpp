@@ -13,6 +13,7 @@
 #include "Camera.h"
 #include "Material.h"
 #include "Moving_Sphere.h"
+#include "Perlin.h"
 
 Hittable_List random_balls()
 {
@@ -104,6 +105,17 @@ Hittable_List two_bit_balls()
     return objects;
 }
 
+Hittable_List two_fuzzy_balls()
+{
+    Hittable_List world;
+
+    auto fuzz = make_shared<Noise_Text>(4);
+    world.add(make_shared<Sphere>(Point3(0, -1000, 0), 1000, make_shared<Lambertian>(fuzz)));
+    world.add(make_shared<Sphere>(Point3(0, 2, 0), 2, make_shared<Lambertian>(fuzz)));
+    
+    return world;
+}
+
 Color ray_color(const Ray &r, const Hittable &world, int depth)
 {
     hit_record rec;
@@ -180,6 +192,18 @@ int main(int argc, char **argv)
             dist_to_focus = 10.0;
             aperture = .1;
             break;
+
+        case 3:
+            // Generates two fuzzy balls
+            world = two_fuzzy_balls();
+            lookfrom = Point3(13, 2, 3);
+            lookat = Point3(0, 0, 0);
+            vup = Vec3(0, 1, 0);
+            fov = 20;
+            dist_to_focus = 10.0;
+            aperture = 0;
+            break;
+            
 
         default:
             world = two_bit_balls();
