@@ -1,8 +1,8 @@
 CC = g++
 CFLAGS = -Wall -g
-OBJS = Color.o Vec3.o Ray.o Sphere.o Hittable_List.o Camera.o Material.o Moving_Sphere.o Bvh_Node.o Aabb.o Texture.o Perlin.o
+OBJS = Color.o Vec3.o Ray.o Sphere.o Hittable_List.o Camera.o Material.o Moving_Sphere.o Bvh_Node.o Aabb.o Texture.o Perlin.o Aarect.o
 
-N = 3
+N = 5
 
 
 sample: main.o $(OBJS)
