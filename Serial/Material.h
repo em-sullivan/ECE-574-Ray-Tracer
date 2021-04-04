@@ -65,11 +65,11 @@ private:
     }*/
 };
 
-class diffuse_light : public Material
+class Diffuse_Light : public Material
 {
 public:
-    diffuse_light(shared_ptr<Texture> a) : emit(a) {}
-    diffuse_light(Color c) : emit(make_shared<Solid_Color>(c)) {}
+    Diffuse_Light(shared_ptr<Texture> a) : emit(a) {}
+    Diffuse_Light(Color c) : emit(make_shared<Solid_Color>(c)) {}
 
     virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override;
     virtual Color emitted(float u, float v, const Point3& p) const override;

@@ -92,12 +92,12 @@ float Dielectric::reflectance(float cosine, float ref)
     return r0 + (1 - r0) * pow((1 - cosine), 5);
 }
 
-bool diffuse_light::scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const
+bool Diffuse_Light::scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const
 {
     return false;
 }
 
-Color diffuse_light::emitted(float u, float v, const Point3& p) const
+Color Diffuse_Light::emitted(float u, float v, const Point3& p) const
 {
     return emit->value(u, v, p);
 }
