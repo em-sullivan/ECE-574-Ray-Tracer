@@ -10,6 +10,11 @@ bool Material::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray
     return false;
 }
 
+Color Material::emitted(float u, float v, const Point3& p) const
+{
+    return Color(0,0,0);
+}
+
 //Lambertian::Lambertian(const Color &a)
 //{
 //    albedo = make_shared<Solid_Color>(a);
@@ -85,4 +90,14 @@ float Dielectric::reflectance(float cosine, float ref)
     float r0 = (1 - ref) / (1 + ref);
     r0 *= r0;
     return r0 + (1 - r0) * pow((1 - cosine), 5);
+}
+
+bool diffuse_light::scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const
+{
+    return false;
+}
+
+Color diffuse_light::emitted(float u, float v, const Point3& p) const
+{
+    return emit->value(u, v, p);
 }

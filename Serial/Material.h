@@ -16,6 +16,7 @@ class Material
 {
 public:
     virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const;
+    virtual Color emitted(float u, float v, const Point3& p) const; 
 };
 
 class Lambertian : public Material
@@ -63,5 +64,19 @@ private:
         return r0 + (1 - r0) * pow((1 - cosine), 5);
     }*/
 };
+
+class diffuse_light : public Material
+{
+public:
+    diffuse_light(shared_ptr<Texture> a) : emit(a) {}
+    diffuse_light(Color c) : emit(make_shared<Solid_Color>(c)) {}
+
+    virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override;
+    virtual Color emitted(float u, float v, const Point3& p) const override;
+
+private:
+    shared_ptr<Texture> emit;
+};    
+
 
 #endif // MATERIAL_H
