@@ -14,6 +14,7 @@
 #include "Material.h"
 #include "Moving_Sphere.h"
 #include "Perlin.h"
+#include "Aarect.h"
 
 Hittable_List random_balls()
 {
@@ -133,21 +134,27 @@ Color ray_color(const Ray &r, const Hittable &world, int depth)
     if (depth <= 0)
         return Color(0,0,0);
 
-    if (world.hit(r, 0.001f, INF, rec)) {
-        Ray scattered;
-        Color attenuation;
-        if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-            return attenuation * ray_color(scattered, world, depth-1);
-
-        return Color(0, 0, 0);
+    // If the ray didn't hit anything, return the background
+    if (!world.hit(r, 0.001f, INF, rec)) {
+        return background;
     }
+    
+    Ray scattered;
+    Color attenuation;
+    Color emitted = rec.mat_ptr->emitted(rec.u,rec.v,rec.p);
 
+    if (rec.mat_ptr->scatter(r, rec, attenuation, scattered)) {
+        return emitted + attenuation * ray_color(scattered, background, world, depth-1);
+    }
+        return emitted;
+}
+/*
     // This prints the blueish-white sky
     Vec3 unit_direction = unitVector(r.direction());
     float t = 0.5 * (unit_direction.y() + 1.0);
     return (1.0 - t) * Color(1.0, 1.0, 1.0) + t * Color(0.5, 0.7, 1.0);
 }
-
+*/
 
 int main(int argc, char **argv)
 {
@@ -160,17 +167,18 @@ int main(int argc, char **argv)
     }
     
     // Image
-    const float aspect_ratio = 16.0f / 9.0f;
+    float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int image_height = static_cast<int>(image_width / aspect_ratio);
-    int samples_per_pixel = 500;
+    int samples_per_pixel = 100;
     int max_depth = 50;
+    int image_height;
 
     // World
     Hittable_List world;
     Point3 lookfrom;
     Point3 lookat;
     Point3 vup;
+    Color background;
     float fov;
     float aperture;
     float dist_to_focus;
@@ -185,6 +193,7 @@ int main(int argc, char **argv)
             lookfrom = Point3(0, 0, 5);
             lookat = Point3(0, 0, -1);
             vup = Vec3(0, 1, 0);
+            background = Color(0.70, 0.80, 1.00);
             fov = 20;
             dist_to_focus = (lookfrom-lookat).length();
             aperture = 0.1;
@@ -197,6 +206,7 @@ int main(int argc, char **argv)
             lookfrom = Point3(13, 2, 3);
             lookat = Point3(0, 0, 0);
             vup = Vec3(0, 1, 0);
+            background = Color(0.70, 0.80, 1.00);
             fov = 20;
             dist_to_focus = 10.0;
             aperture = .1;
@@ -208,6 +218,7 @@ int main(int argc, char **argv)
             lookfrom = Point3(13, 2, 3);
             lookat = Point3(0, 0, 0);
             vup = Vec3(0, 1, 0);
+            background = Color(0.70, 0.80, 1.00);
             fov = 20;
             dist_to_focus = 10.0;
             aperture = 0;
@@ -225,18 +236,46 @@ int main(int argc, char **argv)
             break;
             
 
-        default:
+        case 4:
             world = two_bit_balls();
             lookfrom = Point3(13, 2, 3);
             lookat = Point3(0, 0, 0);
             vup = Vec3(0, 1, 0);
+            background = Color(0.70, 0.80, 1.00);
             fov = 20;
             dist_to_focus = 10.0;
             aperture = 0;
+            break;
+
+
+        case 5:
+            world = simple_light();
+            lookfrom = Point3(26, 3, 6);
+            lookat = Point3(0, 2, 0);
+            vup = Vec3(0, 1, 0);
+            background = Color(0, 0, 0);
+            fov = 20;
+            dist_to_focus = 10.0;
+            aperture = 0;
+            break;
+
+        default:
+        case 6:
+            world = cornell_box();
+            aspect_ratio = 1.0;
+            image_width = 200;
+            background = Color(0, 0, 0);
+            lookfrom = Point3(278, 278, -800);
+            lookat = Point3(278, 278, 0);
+            fov = 40;
+           dist_to_focus = 10.0;
+            aperture = 0;
+            break;
     }
 
     // Camera
     Camera cam(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    image_height = static_cast<int>(image_width / aspect_ratio);
 
     // Output File
     std::fstream file;
@@ -261,7 +300,7 @@ int main(int argc, char **argv)
                 float u = (i + random_float()) / (image_width - 1);
                 float v = (j + random_float()) / (image_height - 1);
                 Ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, max_depth);
+                pixel_color += ray_color(r, background, world, max_depth);
             }
             writeColor(std::cout, pixel_color, samples_per_pixel);
         }
