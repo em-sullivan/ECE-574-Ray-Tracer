@@ -5,10 +5,15 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include <iostream>
 #include "Vec3.h"
 #include "Ray.h"
 #include "Perlin.h"
 #include "shader_consts.h"
+//#include "shader_stb_image.h"
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb_image.h"
+
 
 class Texture
 {
@@ -74,6 +79,28 @@ public:
 private:
     Perlin noise;
     float scale;
+
+};
+
+/*
+ * Image texture
+ */
+
+class Image_Text : public Texture
+{
+public: 
+    const static int bytes_per_pixel = 3;
+
+    Image_Text();
+    Image_Text(const char *filename);
+    ~Image_Text();
+
+    virtual Color value(float u, float v, const Point3 &p) const override;
+
+private:
+    unsigned char *data;
+    int width, height;
+    int bytes_per_scaneline;
 
 };
 

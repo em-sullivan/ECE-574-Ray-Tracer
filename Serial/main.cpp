@@ -116,6 +116,15 @@ Hittable_List two_fuzzy_balls()
     return world;
 }
 
+Hittable_List earf()
+{
+    auto earf_texture = make_shared<Image_Text>("textures/earthmap.jpg");
+    auto earf_surface = make_shared<Lambertian>(earf_texture);
+    auto globe = make_shared<Sphere>(Point3(0, 0, 0), 2, earf_surface);
+
+    return Hittable_List(globe);
+}
+
 Color ray_color(const Ray &r, const Hittable &world, int depth)
 {
     hit_record rec;
@@ -196,6 +205,17 @@ int main(int argc, char **argv)
         case 3:
             // Generates two fuzzy balls
             world = two_fuzzy_balls();
+            lookfrom = Point3(13, 2, 3);
+            lookat = Point3(0, 0, 0);
+            vup = Vec3(0, 1, 0);
+            fov = 20;
+            dist_to_focus = 10.0;
+            aperture = 0;
+            break;
+
+        case 4:
+            // Generate the earth
+            world = earf();
             lookfrom = Point3(13, 2, 3);
             lookat = Point3(0, 0, 0);
             vup = Vec3(0, 1, 0);
