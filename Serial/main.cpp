@@ -117,16 +117,41 @@ Hittable_List two_fuzzy_balls()
     return world;
 }
 
-Hittable_List earf()
+Hittable_List simple_light() 
 {
-    auto earf_texture = make_shared<Image_Text>("textures/earthmap.jpg");
-    auto earf_surface = make_shared<Lambertian>(earf_texture);
-    auto globe = make_shared<Sphere>(Point3(0, 0, 0), 2, earf_surface);
+    Hittable_List objects;
 
-    return Hittable_List(globe);
+    auto pertext = make_shared<Noise_Text>(4);
+    objects.add(make_shared<Sphere>(Point3(0, -1000, 0), 1000, make_shared<Lambertian>(pertext)));
+    objects.add(make_shared<Sphere>(Point3(0, 2, 0), 2, make_shared<Lambertian>(pertext)));
+
+    auto difflight = make_shared<Diffuse_Light>(Color(4, 4, 4));
+    objects.add(make_shared<Sphere>(Point3(0, 7, 0), 2, difflight));
+    objects.add(make_shared<xy_rect>(3, 5, 1, 3, -2, difflight));
+
+    return objects;
 }
 
-Color ray_color(const Ray &r, const Hittable &world, int depth)
+Hittable_List cornell_box()
+{
+    Hittable_List objects;
+
+    auto red   = make_shared<Lambertian>(Color(.65, .05, .05));
+    auto white = make_shared<Lambertian>(Color(.73, .73, .73));
+    auto green = make_shared<Lambertian>(Color(.12, .45, .15));
+    auto light = make_shared<Diffuse_Light>(Color(15, 15, 15));
+
+    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
+    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
+    objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
+    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
+    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
+    objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
+
+    return objects;
+}
+
+Color ray_color(const Ray &r, const Color& background, const Hittable &world, int depth)
 {
     hit_record rec;
 
@@ -169,7 +194,7 @@ int main(int argc, char **argv)
     // Image
     float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int samples_per_pixel = 100;
+    int samples_per_pixel = 200;
     int max_depth = 50;
     int image_height;
 
@@ -223,17 +248,6 @@ int main(int argc, char **argv)
             dist_to_focus = 10.0;
             aperture = 0;
             break;
-
-        case 4:
-            // Generate the earth
-            world = earf();
-            lookfrom = Point3(13, 2, 3);
-            lookat = Point3(0, 0, 0);
-            vup = Vec3(0, 1, 0);
-            fov = 20;
-            dist_to_focus = 10.0;
-            aperture = 0;
-            break;
             
 
         case 4:
@@ -263,17 +277,18 @@ int main(int argc, char **argv)
         case 6:
             world = cornell_box();
             aspect_ratio = 1.0;
-            image_width = 200;
+            image_width = 600;
             background = Color(0, 0, 0);
             lookfrom = Point3(278, 278, -800);
             lookat = Point3(278, 278, 0);
             fov = 40;
-           dist_to_focus = 10.0;
+            dist_to_focus = 10.0;
             aperture = 0;
             break;
     }
 
     // Camera
+    image_height = (image_width / aspect_ratio);
     Camera cam(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
     image_height = static_cast<int>(image_width / aspect_ratio);
 

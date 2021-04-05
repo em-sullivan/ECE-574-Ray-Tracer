@@ -89,7 +89,7 @@ bool yz_rect::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const
     rec.mat_ptr = mp;
     rec.p = r.at(t);
     return true;
-}
+ }
 
 bool yz_rect::bounding_box(float time0, float time1, Aabb& output_box) const
 {
