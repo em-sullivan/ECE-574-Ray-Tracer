@@ -141,11 +141,12 @@ Hittable_List cornell_box()
     auto green = make_shared<Lambertian>(Color(.12, .45, .15));
     auto light = make_shared<Diffuse_Light>(Color(15, 15, 15));
 
+
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
     objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
     objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
-    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
+    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
     objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
     return objects;
@@ -157,7 +158,7 @@ Color ray_color(const Ray &r, const Color& background, const Hittable &world, in
 
     // If the ray bounce limit is exceeded, no more light is gathered
     if (depth <= 0)
-        return Color(0,0,0);
+        return Color(0, 0, 0);
 
     // If the ray didn't hit anything, return the background
     if (!world.hit(r, 0.001f, INF, rec)) {
@@ -194,7 +195,7 @@ int main(int argc, char **argv)
     // Image
     float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int samples_per_pixel = 200;
+    int samples_per_pixel = 50;
     int max_depth = 50;
     int image_height;
 
@@ -278,7 +279,6 @@ int main(int argc, char **argv)
             world = cornell_box();
             aspect_ratio = 1.0;
             image_width = 600;
-            background = Color(0, 0, 0);
             lookfrom = Point3(278, 278, -800);
             lookat = Point3(278, 278, 0);
             fov = 40;
@@ -288,7 +288,6 @@ int main(int argc, char **argv)
     }
 
     // Camera
-    image_height = (image_width / aspect_ratio);
     Camera cam(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
     image_height = static_cast<int>(image_width / aspect_ratio);
 
