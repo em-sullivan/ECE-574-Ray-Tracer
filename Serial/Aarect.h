@@ -10,12 +10,12 @@
 #include "shader_consts.h"
 #include "Hittable.h"
 
-class xy_rect : public Hittable
+class XY_Rect : public Hittable
 {
 public:
-     xy_rect() {}
+    XY_Rect() {}
 
-    xy_rect(float _x0, float _x1, float _y0, float _y1, float _k, shared_ptr<Material> mat)
+    XY_Rect(float _x0, float _x1, float _y0, float _y1, float _k, shared_ptr<Material> mat)
         : x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), mp(mat) {};
 
     virtual bool hit(const Ray& r, float t_min, float t_max, hit_record& rec) const override;
@@ -27,12 +27,12 @@ private:
 };
 
 
-class xz_rect : public Hittable
+class XZ_Rect : public Hittable
 {
 public:
-     xz_rect() {}
+    XZ_Rect() {}
 
-    xz_rect(float _x0, float _x1, float _z0, float _z1, float _k, shared_ptr<Material> mat)
+    XZ_Rect(float _x0, float _x1, float _z0, float _z1, float _k, shared_ptr<Material> mat)
         : x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), mp(mat) {};
 
     virtual bool hit(const Ray& r, float t_min, float t_max, hit_record& rec) const override;
@@ -43,12 +43,12 @@ private:
     shared_ptr<Material> mp;
 };
 
-class yz_rect : public Hittable
+class YZ_Rect : public Hittable
 {
 public:
-     yz_rect() {}
+    YZ_Rect() {}
 
-    yz_rect(float _y0, float _y1, float _z0, float _z1, float _k, shared_ptr<Material> mat)
+    YZ_Rect(float _y0, float _y1, float _z0, float _z1, float _k, shared_ptr<Material> mat)
         : y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), mp(mat) {};
 
     virtual bool hit(const Ray& r, float t_min, float t_max, hit_record& rec) const override;
