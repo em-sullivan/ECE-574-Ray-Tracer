@@ -195,7 +195,7 @@ int main(int argc, char **argv)
     // Image
     float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int samples_per_pixel = 50;
+    int samples_per_pixel = 100;
     int max_depth = 50;
     int image_height;
 
@@ -278,9 +278,10 @@ int main(int argc, char **argv)
         case 6:
             world = cornell_box();
             aspect_ratio = 1.0;
-            image_width = 600;
+            image_width = 300;
             lookfrom = Point3(278, 278, -800);
             lookat = Point3(278, 278, 0);
+            vup = Vec3(0, 1, 0);
             fov = 40;
             dist_to_focus = 10.0;
             aperture = 0;
