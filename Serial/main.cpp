@@ -16,6 +16,7 @@
 #include "Perlin.h"
 #include "Aarect.h"
 #include "Box.h"
+#include "Translate.h"
 
 Hittable_List random_balls()
 {
@@ -128,7 +129,7 @@ Hittable_List simple_light()
 
     auto difflight = make_shared<Diffuse_Light>(Color(4, 4, 4));
     objects.add(make_shared<Sphere>(Point3(0, 7, 0), 2, difflight));
-    objects.add(make_shared<xy_rect>(3, 5, 1, 3, -2, difflight));
+    objects.add(make_shared<XY_Rect>(3, 5, 1, 3, -2, difflight));
 
     return objects;
 }
@@ -143,15 +144,22 @@ Hittable_List cornell_box()
     auto light = make_shared<Diffuse_Light>(Color(15, 15, 15));
 
 
-    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
-    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
-    objects.add(make_shared<xz_rect>(213, 343, 227, 332, 554, light));
-    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
-    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
-    objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
+    objects.add(make_shared<YZ_Rect>(0, 555, 0, 555, 555, green));
+    objects.add(make_shared<YZ_Rect>(0, 555, 0, 555, 0, red));
+    objects.add(make_shared<XZ_Rect>(213, 343, 227, 332, 554, light));
+    objects.add(make_shared<XZ_Rect>(0, 555, 0, 555, 555, white));
+    objects.add(make_shared<XZ_Rect>(0, 555, 0, 555, 0, white));
+    objects.add(make_shared<XY_Rect>(0, 555, 0, 555, 555, white));
 
-    objects.add(make_shared<Box>(Point3(130, 0, 65), Point3(295, 165, 230), white));
-    objects.add(make_shared<Box>(Point3(265, 0, 295), Point3(430, 330, 460), white));
+    shared_ptr<Hittable> box1 = make_shared<Box>(Point3(0, 0, 0), Point3(165, 330, 165), white);
+    box1 = make_shared<Rotate_Y>(box1, 15);
+    box1 = make_shared<Translate>(box1, Vec3(265,0,295));
+    objects.add(box1);
+
+    shared_ptr<Hittable> box2 = make_shared<Box>(Point3(0,0,0), Point3(165,165,165), white);
+    box2 = make_shared<Rotate_Y>(box2, -18);
+    box2 = make_shared<Translate>(box2, Vec3(130,0,65));
+    objects.add(box2);
 
     return objects;
 }
