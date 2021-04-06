@@ -17,8 +17,8 @@ Bvh_Node::Bvh_Node(const std::vector<shared_ptr<Hittable>>& src_objects,
 
     int axis = random_int(0, 2);
     auto comparator = (axis == 0) ? box_x_compare
-        : (axis == 1) ? box_y_compare
-        : box_z_compare;
+                    : (axis == 1) ? box_y_compare
+                                  : box_z_compare;
 
     size_t object_span = end - start;
 
@@ -57,7 +57,7 @@ bool Bvh_Node::hit(const Ray &r, float t_min, float t_max, hit_record &rec) cons
 
     // Check if either left or right boxes are hit
     bool hit_left = left->hit(r, t_min, t_max, rec);
-    bool hit_right = right->hit(r, t_min, t_max, rec);
+    bool hit_right = right->hit(r, t_min, hit_left ? rec.t : t_max, rec);
 
     return hit_left || hit_right;
 }
