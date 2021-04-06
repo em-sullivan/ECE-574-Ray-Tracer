@@ -101,3 +101,10 @@ Color Diffuse_Light::emitted(float u, float v, const Point3& p) const
 {
     return emit->value(u, v, p);
 }
+
+bool Isotropic::scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const
+{
+    scattered = Ray(rec.p, randomInUnitSphere(), r_in.time());
+    attenuation = albedo->value(rec.u, rec.v, rec.p);
+    return true;
+}
