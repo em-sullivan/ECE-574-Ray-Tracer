@@ -297,7 +297,7 @@ int main(int argc, char **argv)
     // Image
     float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int samples_per_pixel = 300;
+    int samples_per_pixel = 20;
     int max_depth = 50;
     int image_height;
 
@@ -404,7 +404,7 @@ int main(int argc, char **argv)
         case 8:
             world = final_scene();
             aspect_ratio = 1.0;
-            image_width = 800;
+            image_width = 400;
             background = Color(0,0,0);
             lookfrom = Point3(478, 278, -600);
             lookat = Point3(278, 278, 0);
