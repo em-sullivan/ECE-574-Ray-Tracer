@@ -15,6 +15,7 @@
 #include "Moving_Sphere.h"
 #include "Perlin.h"
 #include "Aarect.h"
+#include "Box.h"
 
 Hittable_List random_balls()
 {
@@ -148,6 +149,9 @@ Hittable_List cornell_box()
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
     objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
+
+    objects.add(make_shared<Box>(Point3(130, 0, 65), Point3(295, 165, 230), white));
+    objects.add(make_shared<Box>(Point3(265, 0, 295), Point3(430, 330, 460), white));
 
     return objects;
 }
