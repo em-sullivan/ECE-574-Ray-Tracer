@@ -23,23 +23,27 @@ class Lambertian : public Material
 {
 public:
     // Constructor
-    __device__  Lambertian(const Color &a) : albedo(make_shared<Solid_Color>(a)){}
-    __device__  Lambertian(shared_ptr<Texture> a);
+    __device__ Lambertian(const Color &a) 
+    {
+        albedo = new Solid_Color (a);
+    }
 
-    __device__  virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
+    __device__ Lambertian(Texture *a);
+
+    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
 
 private:
     //Color albedo;
-    shared_ptr<Texture> albedo;
+    Texture *albedo;
 };
 
 class Metal : public Material
 {
 public:
     // Constructor
-    __device__  Metal(const Color &a, float in_fuzz);
+    __device__ Metal(const Color &a, float in_fuzz);
 
-    __device__  virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
+    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
 
 private:
     Color albedo;
@@ -49,9 +53,9 @@ private:
 class Dielectric : public Material
 {
 public:
-    __device__  Dielectric(float refraction_index);
-    __device__  virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
-    __device__  static float reflectance(float cosine, float ref);
+    __device__ Dielectric(float refraction_index);
+    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
+    __device__ static float reflectance(float cosine, float ref);
 
 private:
     float refraction;
@@ -68,26 +72,32 @@ private:
 class Diffuse_Light : public Material
 {
 public:
-    __device__  Diffuse_Light(shared_ptr<Texture> a) : emit(a) {}
-    __device__  Diffuse_Light(Color c) : emit(make_shared<Solid_Color>(c)) {}
+    __device__ Diffuse_Light(Texture *a) : emit(a) {}
+    __device__ Diffuse_Light(Color c)
+    {
+        emit = new Solid_Color (c);
+    }
 
-    __device__  virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override;
+    __device__ virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override;
     __device__ virtual Color emitted(float u, float v, const Point3& p) const override;
 
 private:
-    shared_ptr<Texture> emit;
+    Texture *emit;
 };
 
 class Isotropic : public Material
 {
 public:
-    __device__  Isotropic(Color c) : albedo(make_shared<Solid_Color>(c)) {}
-    __device__  Isotropic(shared_ptr<Texture> a) : albedo(a) {}
+    __device__ Isotropic(Color c) 
+    {
+        albedo = new Solid_Color(c);
+    }
+    __device__ Isotropic(Texture *a) : albedo(a) {}
 
-    __device__  virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override;
+    __device__ virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override;
 
 private:
-    shared_ptr<Texture> albedo;
+    Texture *albedo;
 };
 
 

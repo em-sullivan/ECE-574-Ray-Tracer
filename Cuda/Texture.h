@@ -48,7 +48,7 @@ class Checkered : public Texture
 public:
     // Constructors
     __device__  Checkered();
-    __device__  Checkered(shared_ptr<Texture> even, shared_ptr<Texture> odd);
+    __device__  Checkered(Texture *even, Texture *odd);
     __device__  Checkered(Color c1, Color c2);
 
     // Color value
@@ -57,8 +57,8 @@ public:
 
 private:
     // Textures for each tile
-    shared_ptr<Texture> odd_tiles;
-    shared_ptr<Texture> even_tiles;
+    Texture *odd_tiles;
+    Texture *even_tiles;
 
 };
 

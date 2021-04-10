@@ -5,7 +5,7 @@
 #include "Sphere.h"
 
 
- __device__ Sphere::Sphere(Point3 cen, float r, shared_ptr<Material> m)
+ __device__ Sphere::Sphere(Point3 cen, float r, Material *m)
 {
     center = cen;
     radius = r;

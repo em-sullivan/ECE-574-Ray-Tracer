@@ -28,16 +28,17 @@ __device__  Color Solid_Color::value(float u, float v, const Point3 &p) const
  * Solid Checkard pattern
  */
 
-__device__  Checkered::Checkered(shared_ptr<Texture> even, shared_ptr<Texture> odd)
+__device__  Checkered::Checkered(Texture *even, Texture *odd)
 {
     even_tiles = even;
     odd_tiles = odd;
 }
 
+// Need to fix memory allocation on CUDA
 __device__  Checkered::Checkered(Color c1, Color c2)
 {
-    even_tiles = make_shared<Solid_Color>(c1);
-    odd_tiles = make_shared<Solid_Color>(c2);
+    even_tiles = new Solid_Color(c1);
+    odd_tiles = new Solid_Color(c2);
 }
 
 __device__  Color Checkered::value(float u, float v, const Point3 &p) const

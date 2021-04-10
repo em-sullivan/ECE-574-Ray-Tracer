@@ -15,7 +15,7 @@ class Material;
 struct hit_record {
     Point3 p;
     Vec3 normal;
-    shared_ptr<Material> mat_ptr;
+    Material *mat_ptr;
     float t;
     float u;
     float v;

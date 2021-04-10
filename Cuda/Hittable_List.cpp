@@ -10,7 +10,7 @@ __device__ Hittable_List::Hittable_List()
     return;
 }
 
-__device__ Hittable_List::Hittable_List(shared_ptr<Hittable> object)
+__device__ Hittable_List::Hittable_List(Hittable *object)
 {
     add(object);
 }
@@ -20,7 +20,7 @@ __device__ void Hittable_List::clear()
     objects.clear();
 }
 
-__device__ void Hittable_List::add(shared_ptr<Hittable> object)
+__device__ void Hittable_List::add(Hittable *object)
 {
     objects.push_back(object);
 }
