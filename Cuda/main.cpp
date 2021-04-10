@@ -4,6 +4,7 @@
 #include <string>
 #include <time.h>
 #include "Vec3.h"
+#include "Ray.h"
 
 // limited version of checkCudaErrors from helper_cuda.h in CUDA examples
 #define checkCudaErrors(val) check_cuda( (val), #val, __FILE__, __LINE__ )
@@ -19,7 +20,14 @@ void check_cuda(cudaError_t result, char const *const func, const char *const fi
     }
 }
 
-__global__ void render(Vec3 *fb, int max_x, int max_y)
+__device__ Color  ray_color(const Ray& r) 
+{
+   Vec3 unit_direction = unitVector(r.direction());
+   float t = 0.5f*(unit_direction.y() + 1.0f);
+   return (1.0f-t)*Vec3(1.0, 1.0, 1.0) + t*Vec3(0.5, 0.7, 1.0);
+}
+
+__global__ void render(Vec3 *fb, int max_x, int max_y, Vec3 lower_left_corner, Vec3 horizontal, Vec3 vertical, Vec3 origin)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
@@ -27,8 +35,12 @@ __global__ void render(Vec3 *fb, int max_x, int max_y)
     if((i >= max_x) || (j >= max_y)) return;
  
     int pixel_index = j*max_x + i;
- 
-    fb[pixel_index] = Vec3( float(i) / max_x, float(j) / max_y, 0.2f);
+
+    float u = float(i) / float(max_x);
+    float v = float(j) / float(max_y);
+    Ray r(origin, lower_left_corner + u*horizontal + v*vertical);
+    
+    fb[pixel_index] = ray_color(r);
 }
 
 int main(int argc, char **argv)
@@ -57,7 +69,12 @@ int main(int argc, char **argv)
     dim3 blocks(nx/tx+1,ny/ty+1);
     dim3 threads(tx,ty);
 
-    render<<<blocks, threads>>>(fb, nx, ny);
+    render<<<blocks, threads>>>(fb, nx, ny,
+                                Vec3(-2.0, -1.0, -1.0),
+                                Vec3(4.0, 0.0, 0.0),
+                                Vec3(0.0, 2.0, 0.0),
+                                Vec3(0.0, 0.0, 0.0));
+                    
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
     
