@@ -26,11 +26,6 @@ public:
     __host__ __device__ float y() const;
     __host__ __device__ float z() const;
 
-    // Added for CUDA for now
-    __host__ __device__ float r() const;
-    __host__ __device__ float g() const;
-    __host__ __device__ float b() const;
-
     // Operators (Overloaded)
     __host__ __device__  Vec3 operator-() const;
     __host__ __device__ float operator[](int i) const;
