@@ -42,7 +42,7 @@ Bvh_Node::Bvh_Node(Hittable **objects, size_t start, size_t end, float time0, fl
     Aabb box_left, box_right;
 
     if (!left->bounding_box(time0, time1, box_left) || !right->bounding_box(time0, time1, box_right))
-        std::cerr << "No Bounding box in Bvh_Node constructor" << std::endl;
+        //std::cerr << "No Bounding box in Bvh_Node constructor" << std::endl;
 
     box = surrounding_box(box_left, box_right); 
 }

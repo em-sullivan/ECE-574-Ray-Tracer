@@ -43,8 +43,8 @@ inline bool box_compare(const Hittable *a, const Hittable *b, int axis)
 {
     Aabb box_a, box_b;
 
-    if (!a->bounding_box(0, 0, box_a) || !b->bounding_box(0, 0, box_b))
-        std::cerr << "No boudning in Bvh_Node constructor " << std::endl;
+    //if (!a->bounding_box(0, 0, box_a) || !b->bounding_box(0, 0, box_b))
+        //std::cerr << "No boudning in Bvh_Node constructor " << std::endl;
 
     return box_a.min()[axis] < box_b.min()[axis];
 }
