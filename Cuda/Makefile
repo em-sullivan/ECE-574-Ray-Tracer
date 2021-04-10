@@ -29,7 +29,6 @@ cudart: $(OBJS)
 create-image:
 	./cudart
 	convert out.ppm out.jpg
-	#rm out.ppm
 
 profile_basic: cudart
 	nvprof ./cudart
@@ -40,8 +39,3 @@ profile_metrics: cudart
 
 clean:
 	rm -f cudart *.o *.ppm out.jpg *.elf *core
-
-# Dependencies
-Ray.o: Ray.h
-Vec.o: Vec.h
-Color.o: Color.h
