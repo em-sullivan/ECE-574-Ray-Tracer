@@ -15,7 +15,7 @@ class XY_Rect : public Hittable
 public:
     XY_Rect() {}
 
-    XY_Rect(float _x0, float _x1, float _y0, float _y1, float _k, shared_ptr<Material> mat)
+    XY_Rect(float _x0, float _x1, float _y0, float _y1, float _k, Material *mat)
         : x0(_x0), x1(_x1), y0(_y0), y1(_y1), k(_k), mp(mat) {};
 
     virtual bool hit(const Ray& r, float t_min, float t_max, hit_record& rec) const override;
@@ -23,7 +23,7 @@ public:
         
 private:
     float x0, x1, y0, y1, k;
-    shared_ptr<Material> mp;
+    Material *mp;
 };
 
 
@@ -32,7 +32,7 @@ class XZ_Rect : public Hittable
 public:
     XZ_Rect() {}
 
-    XZ_Rect(float _x0, float _x1, float _z0, float _z1, float _k, shared_ptr<Material> mat)
+    XZ_Rect(float _x0, float _x1, float _z0, float _z1, float _k, Material *mat)
         : x0(_x0), x1(_x1), z0(_z0), z1(_z1), k(_k), mp(mat) {};
 
     virtual bool hit(const Ray& r, float t_min, float t_max, hit_record& rec) const override;
@@ -40,7 +40,7 @@ public:
         
 private:
     float x0, x1, z0, z1, k;
-    shared_ptr<Material> mp;
+    Material *mp;
 };
 
 class YZ_Rect : public Hittable
@@ -48,7 +48,7 @@ class YZ_Rect : public Hittable
 public:
     YZ_Rect() {}
 
-    YZ_Rect(float _y0, float _y1, float _z0, float _z1, float _k, shared_ptr<Material> mat)
+    YZ_Rect(float _y0, float _y1, float _z0, float _z1, float _k, Material *mat)
         : y0(_y0), y1(_y1), z0(_z0), z1(_z1), k(_k), mp(mat) {};
 
     virtual bool hit(const Ray& r, float t_min, float t_max, hit_record& rec) const override;
@@ -56,7 +56,7 @@ public:
         
 private:
     float y0, y1, z0, z1, k;
-    shared_ptr<Material> mp;
+    Material *mp;
 };
 
 #endif

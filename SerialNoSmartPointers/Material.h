@@ -23,14 +23,18 @@ class Lambertian : public Material
 {
 public:
     // Constructor
-    Lambertian(const Color &a) : albedo(make_shared<Solid_Color>(a)){}
-    Lambertian(shared_ptr<Texture> a);
+    Lambertian(const Color &a) 
+    {
+        albedo = new Solid_Color (a);
+    }
+
+    Lambertian(Texture *a);
 
     virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
 
 private:
     //Color albedo;
-    shared_ptr<Texture> albedo;
+    Texture *albedo;
 };
 
 class Metal : public Material
@@ -68,26 +72,32 @@ private:
 class Diffuse_Light : public Material
 {
 public:
-    Diffuse_Light(shared_ptr<Texture> a) : emit(a) {}
-    Diffuse_Light(Color c) : emit(make_shared<Solid_Color>(c)) {}
+    Diffuse_Light(Texture *a) : emit(a) {}
+    Diffuse_Light(Color c)
+    {
+        emit = new Solid_Color (c);
+    }
 
     virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override;
     virtual Color emitted(float u, float v, const Point3& p) const override;
 
 private:
-    shared_ptr<Texture> emit;
+    Texture *emit;
 };
 
 class Isotropic : public Material
 {
 public:
-    Isotropic(Color c) : albedo(make_shared<Solid_Color>(c)) {}
-    Isotropic(shared_ptr<Texture> a) : albedo(a) {}
+    Isotropic(Color c) 
+    {
+        albedo = new Solid_Color(c);
+    }
+    Isotropic(Texture *a) : albedo(a) {}
 
     virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override;
 
 private:
-    shared_ptr<Texture> albedo;
+    Texture *albedo;
 };
 
 

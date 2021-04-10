@@ -24,7 +24,7 @@ public:
         float _time0,
         float _time1,
         float r,
-        shared_ptr<Material> m
+        Material *m
     );
 
     virtual bool hit(const Ray &r, float t_min, float t_max, hit_record &rec) const override;
@@ -37,7 +37,7 @@ private:
     float time0;
     float time1;
     float radius;
-    shared_ptr<Material> mat_ptr;
+    Material *mat_ptr;
 
 };
 

@@ -25,8 +25,8 @@ Hittable_List random_balls()
     Hittable_List world;
 
     // Gray ground
-    auto ground_material = make_shared<Lambertian>(Color(0.5, 0.5, 0.5));
-    world.add(make_shared<Sphere>(Point3(0, -1000, 0), 1000, ground_material));
+    auto ground_material = new Lambertian(Color(0.5, 0.5, 0.5));
+    world.add(new Sphere(Point3(0, -1000, 0), 1000, ground_material));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -36,23 +36,23 @@ Hittable_List random_balls()
             Point3 center(a + 0.9 * random_float(), 0.2, b + 0.9 * random_float());
 
             if ((center - Point3(4, 0.2, 0)).length() > 0.9) {
-                shared_ptr<Material> sphere_material;
+                Material *sphere_material;
 
                 if (choose_mat < 0.8) {
                     // Diffuse ball
                     auto albedo = Color::random() * Color::random();
-                    sphere_material = make_shared<Lambertian>(albedo);
-                    world.add(make_shared<Sphere>(center, 0.2, sphere_material));
+                    sphere_material = new Lambertian(albedo);
+                    world.add(new Sphere(center, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     // Metal ball
                     auto albedo = Color::random(0.5, 1);
                     auto fuzz = random_float(0, 0.5);
-                    sphere_material = make_shared<Metal>(albedo, fuzz);
-                    world.add(make_shared<Sphere>(center, 0.2, sphere_material));
+                    sphere_material = new Metal(albedo, fuzz);
+                    world.add(new Sphere(center, 0.2, sphere_material));
                 } else {
                     // Glass ball
-                    sphere_material = make_shared<Dielectric>(1.5);
-                    world.add(make_shared<Sphere>(center, 0.2, sphere_material));
+                    sphere_material = new Dielectric(1.5);
+                    world.add(new Sphere(center, 0.2, sphere_material));
                 }
             }
 
@@ -60,14 +60,14 @@ Hittable_List random_balls()
     }
 
     // Add some big chonking balls
-    auto ball1 =make_shared<Dielectric>(1.5);
-    world.add(make_shared<Sphere>(Point3(0, 1, 0), 1.0, ball1));
+    auto ball1 = new Dielectric(1.5);
+    world.add(new Sphere(Point3(0, 1, 0), 1.0, ball1));
 
-    auto ball2 = make_shared<Lambertian>(Color(0.4, 0.2, 0.1));
-    world.add(make_shared<Sphere>(Point3(-4, 1, 0), 1.0, ball2));
+    auto ball2 = new Lambertian(Color(0.4, 0.2, 0.1));
+    world.add(new Sphere(Point3(-4, 1, 0), 1.0, ball2));
 
-    auto ball3 = make_shared<Metal>(Color(0.7, 0.6, 0.5), 0.0);
-    world.add(make_shared<Sphere>(Point3(4, 1, 0), 1.0, ball3));
+    auto ball3 = new Metal(Color(0.7, 0.6, 0.5), 0.0);
+    world.add(new Sphere(Point3(4, 1, 0), 1.0, ball3));
 
     return world;
 }
@@ -78,21 +78,21 @@ Hittable_List three_balls()
     // For Eric's poor slow computer :(
     Hittable_List world;
 
-    auto ground = make_shared<Checkered>(Color(0.8, 0.8, 0.0), Color(0, 0, 0));
-    auto center = make_shared<Lambertian>(Color(0.1, 0.2, 0.5));
-    auto tiny = make_shared<Lambertian>(Color(1, 0, 1));
-    auto left = make_shared<Dielectric>(1.25);
-    auto right = make_shared<Metal>(Color(0.8, 0.6, 0.2), 0.0);
+    auto ground = new Checkered(Color(0.8, 0.8, 0.0), Color(0, 0, 0));
+    auto center = new Lambertian(Color(0.1, 0.2, 0.5));
+    auto tiny = new Lambertian(Color(1, 0, 1));
+    auto left = new Dielectric(1.25);
+    auto right = new Metal(Color(0.8, 0.6, 0.2), 0.0);
 
     // Green ball ground
     // Blue ball sandwiched between glass and metal balls
-    world.add(make_shared<Sphere>(Point3(0.0, -100.5, -1.0), 100.0, make_shared<Lambertian>(ground)));
-    world.add(make_shared<Sphere>(Point3(0.0, 0.0, -1.0), 0.5, center));
-    world.add(make_shared<Sphere>(Point3(-1.0, 0.0, -1.0), 0.5, left));
-    world.add(make_shared<Sphere>(Point3(1.0, 0.0, -1.0), 0.5, right));
+    world.add(new Sphere(Point3(0.0, -100.5, -1.0), 100.0, new Lambertian(ground)));
+    world.add(new Sphere(Point3(0.0, 0.0, -1.0), 0.5, center));
+    world.add(new Sphere(Point3(-1.0, 0.0, -1.0), 0.5, left));
+    world.add(new Sphere(Point3(1.0, 0.0, -1.0), 0.5, right));
 
     // Tiny lil guy moving around
-    world.add(make_shared<Moving_Sphere>(Point3(0.1, -0.5, 1.0), Point3(0.0, -0.5, 1.0),
+    world.add(new Moving_Sphere(Point3(0.1, -0.5, 1.0), Point3(0.0, -0.5, 1.0),
         0.0, 1.0, 0.1, tiny));
 
     return world;
@@ -102,10 +102,10 @@ Hittable_List two_bit_balls()
 {
     Hittable_List objects;
 
-    auto checker = make_shared<Checkered>(Color(0.9, 0.9, 0.9), Color(1, 0, 1));
+    auto checker = new Checkered(Color(0.9, 0.9, 0.9), Color(1, 0, 1));
 
-    objects.add(make_shared<Sphere>(Point3(0, -10, 0), 10, make_shared<Lambertian>(checker)));
-    objects.add(make_shared<Sphere>(Point3(0, 10, 0), 10, make_shared<Lambertian>(checker)));
+    objects.add(new Sphere(Point3(0, -10, 0), 10, new Lambertian(checker)));
+    objects.add(new Sphere(Point3(0, 10, 0), 10, new Lambertian(checker)));
 
     return objects;
 }
@@ -114,9 +114,9 @@ Hittable_List two_fuzzy_balls()
 {
     Hittable_List world;
 
-    auto fuzz = make_shared<Noise_Text>(4);
-    world.add(make_shared<Sphere>(Point3(0, -1000, 0), 1000, make_shared<Lambertian>(fuzz)));
-    world.add(make_shared<Sphere>(Point3(0, 2, 0), 2, make_shared<Lambertian>(fuzz)));
+    auto fuzz = new Noise_Text(4);
+    world.add(new Sphere(Point3(0, -1000, 0), 1000, new Lambertian(fuzz)));
+    world.add(new Sphere(Point3(0, 2, 0), 2, new Lambertian(fuzz)));
     
     return world;
 }
@@ -125,13 +125,13 @@ Hittable_List simple_light()
 {
     Hittable_List objects;
 
-    auto pertext = make_shared<Noise_Text>(4);
-    objects.add(make_shared<Sphere>(Point3(0, -1000, 0), 1000, make_shared<Lambertian>(pertext)));
-    objects.add(make_shared<Sphere>(Point3(0, 2, 0), 2, make_shared<Lambertian>(pertext)));
+    auto pertext = new Noise_Text(4);
+    objects.add(new Sphere(Point3(0, -1000, 0), 1000, new Lambertian(pertext)));
+    objects.add(new Sphere(Point3(0, 2, 0), 2, new Lambertian(pertext)));
 
-    auto difflight = make_shared<Diffuse_Light>(Color(4, 4, 4));
-    objects.add(make_shared<Sphere>(Point3(0, 7, 0), 2, difflight));
-    objects.add(make_shared<XY_Rect>(3, 5, 1, 3, -2, difflight));
+    auto difflight = new Diffuse_Light(Color(4, 4, 4));
+    objects.add(new Sphere(Point3(0, 7, 0), 2, difflight));
+    objects.add(new XY_Rect(3, 5, 1, 3, -2, difflight));
 
     return objects;
 }
@@ -140,27 +140,27 @@ Hittable_List cornell_box()
 {
     Hittable_List objects;
 
-    auto red   = make_shared<Lambertian>(Color(.65, .05, .05));
-    auto white = make_shared<Lambertian>(Color(.73, .73, .73));
-    auto green = make_shared<Lambertian>(Color(.12, .45, .15));
-    auto light = make_shared<Diffuse_Light>(Color(15, 15, 15));
+    auto red   = new Lambertian(Color(.65, .05, .05));
+    auto white = new Lambertian(Color(.73, .73, .73));
+    auto green = new Lambertian(Color(.12, .45, .15));
+    auto light = new Diffuse_Light(Color(15, 15, 15));
 
 
-    objects.add(make_shared<YZ_Rect>(0, 555, 0, 555, 555, green));
-    objects.add(make_shared<YZ_Rect>(0, 555, 0, 555, 0, red));
-    objects.add(make_shared<XZ_Rect>(213, 343, 227, 332, 554, light));
-    objects.add(make_shared<XZ_Rect>(0, 555, 0, 555, 555, white));
-    objects.add(make_shared<XZ_Rect>(0, 555, 0, 555, 0, white));
-    objects.add(make_shared<XY_Rect>(0, 555, 0, 555, 555, white));
+    objects.add(new YZ_Rect(0, 555, 0, 555, 555, green));
+    objects.add(new YZ_Rect(0, 555, 0, 555, 0, red));
+    objects.add(new XZ_Rect(213, 343, 227, 332, 554, light));
+    objects.add(new XZ_Rect(0, 555, 0, 555, 555, white));
+    objects.add(new XZ_Rect(0, 555, 0, 555, 0, white));
+    objects.add(new XY_Rect(0, 555, 0, 555, 555, white));
 
-    shared_ptr<Hittable> box1 = make_shared<Box>(Point3(0, 0, 0), Point3(165, 330, 165), white);
-    box1 = make_shared<Rotate_Y>(box1, 15);
-    box1 = make_shared<Translate>(box1, Vec3(265,0,295));
+    Hittable *box1 = new Box(Point3(0, 0, 0), Point3(165, 330, 165), white);
+    box1 = new Rotate_Y(box1, 15);
+    box1 = new Translate(box1, Vec3(265,0,295));
     objects.add(box1);
 
-    shared_ptr<Hittable> box2 = make_shared<Box>(Point3(0,0,0), Point3(165,165,165), white);
-    box2 = make_shared<Rotate_Y>(box2, -18);
-    box2 = make_shared<Translate>(box2, Vec3(130,0,65));
+    Hittable *box2 = new Box(Point3(0,0,0), Point3(165,165,165), white);
+    box2 = new Rotate_Y(box2, -18);
+    box2 = new Translate(box2, Vec3(130,0,65));
     objects.add(box2);
 
     return objects;
@@ -169,28 +169,28 @@ Hittable_List cornell_box()
 Hittable_List cornell_smoke() {
     Hittable_List objects;
 
-    auto red   = make_shared<Lambertian>(Color(.65, .05, .05));
-    auto white = make_shared<Lambertian>(Color(.73, .73, .73));
-    auto green = make_shared<Lambertian>(Color(.12, .45, .15));
-    auto light = make_shared<Diffuse_Light>(Color(7, 7, 7));
+    auto red   = new Lambertian(Color(.65, .05, .05));
+    auto white = new Lambertian(Color(.73, .73, .73));
+    auto green = new Lambertian(Color(.12, .45, .15));
+    auto light = new Diffuse_Light(Color(7, 7, 7));
 
-    objects.add(make_shared<YZ_Rect>(0, 555, 0, 555, 555, green));
-    objects.add(make_shared<YZ_Rect>(0, 555, 0, 555, 0, red));
-    objects.add(make_shared<XZ_Rect>(113, 443, 127, 432, 554, light));
-    objects.add(make_shared<XZ_Rect>(0, 555, 0, 555, 555, white));
-    objects.add(make_shared<XZ_Rect>(0, 555, 0, 555, 0, white));
-    objects.add(make_shared<XY_Rect>(0, 555, 0, 555, 555, white));
+    objects.add(new YZ_Rect(0, 555, 0, 555, 555, green));
+    objects.add(new YZ_Rect(0, 555, 0, 555, 0, red));
+    objects.add(new XZ_Rect(113, 443, 127, 432, 554, light));
+    objects.add(new XZ_Rect(0, 555, 0, 555, 555, white));
+    objects.add(new XZ_Rect(0, 555, 0, 555, 0, white));
+    objects.add(new XY_Rect(0, 555, 0, 555, 555, white));
 
-    shared_ptr<Hittable> box1 = make_shared<Box>(Point3(0,0,0), Point3(165,330,165), white);
-    box1 = make_shared<Rotate_Y>(box1, 15);
-    box1 = make_shared<Translate>(box1, Vec3(265,0,295));
+    Hittable *box1 = new Box(Point3(0,0,0), Point3(165,330,165), white);
+    box1 = new Rotate_Y(box1, 15);
+    box1 = new Translate(box1, Vec3(265,0,295));
 
-    shared_ptr<Hittable> box2 = make_shared<Box>(Point3(0,0,0), Point3(165,165,165), white);
-    box2 = make_shared<Rotate_Y>(box2, -18);
-    box2 = make_shared<Translate>(box2, Vec3(130,0,65));
+    Hittable *box2 = new Box(Point3(0,0,0), Point3(165,165,165), white);
+    box2 = new Rotate_Y(box2, -18);
+    box2 = new Translate(box2, Vec3(130,0,65));
 
-    objects.add(make_shared<Constant_Medium>(box1, 0.01, Color(0,0,0)));
-    objects.add(make_shared<Constant_Medium>(box2, 0.01, Color(1,1,1)));
+    objects.add(new Constant_Medium(box1, 0.01, Color(0,0,0)));
+    objects.add(new Constant_Medium(box2, 0.01, Color(1,1,1)));
 
     return objects;
 }
@@ -198,7 +198,7 @@ Hittable_List cornell_smoke() {
 Hittable_List final_scene()
 {
     Hittable_List boxes1;
-    auto ground = make_shared<Lambertian>(Color(0.48, 0.83, 0.53));
+    auto ground = new Lambertian(Color(0.48, 0.83, 0.53));
 
 
     const int boxes_per_side = 20;
@@ -212,44 +212,44 @@ Hittable_List final_scene()
             auto y1 = random_float(1,101);
             auto z1 = z0 + w;
 
-            boxes1.add(make_shared<Box>(Point3(x0,y0,z0), Point3(x1,y1,z1), ground));
+            boxes1.add(new Box(Point3(x0,y0,z0), Point3(x1,y1,z1), ground));
         }
     }
 
     Hittable_List objects;
 
-    objects.add(make_shared<Bvh_Node>(boxes1, 0, 1));
+    objects.add(new Bvh_Node(boxes1, 0, 1));
 
-    auto light = make_shared<Diffuse_Light>(Color(7, 7, 7));
-    objects.add(make_shared<XZ_Rect>(123, 423, 147, 412, 554, light));
+    auto light = new Diffuse_Light(Color(7, 7, 7));
+    objects.add(new XZ_Rect(123, 423, 147, 412, 554, light));
 
     auto center1 = Point3(400, 400, 200);
     auto center2 = center1 + Vec3(30,0,0);
-    auto moving_sphere_material = make_shared<Lambertian>(Color(0.7, 0.3, 0.1));
-    objects.add(make_shared<Moving_Sphere>(center1, center2, 0, 1, 50, moving_sphere_material));
+    auto moving_sphere_material = new Lambertian(Color(0.7, 0.3, 0.1));
+    objects.add(new Moving_Sphere(center1, center2, 0, 1, 50, moving_sphere_material));
 
-    objects.add(make_shared<Sphere>(Point3(260, 150, 45), 50, make_shared<Dielectric>(1.5)));
-    objects.add(make_shared<Sphere>(Point3(0, 150, 145), 50, make_shared<Metal>(Color(0.8, 0.8, 0.9), 1.0)));
+    objects.add(new Sphere(Point3(260, 150, 45), 50, new Dielectric(1.5)));
+    objects.add(new Sphere(Point3(0, 150, 145), 50, new Metal(Color(0.8, 0.8, 0.9), 1.0)));
 
-    auto boundary = make_shared<Sphere>(Point3(360,150,145), 70, make_shared<Dielectric>(1.5));
+    auto boundary = new Sphere(Point3(360,150,145), 70, new Dielectric(1.5));
     objects.add(boundary);
-    objects.add(make_shared<Constant_Medium>(boundary, 0.2, Color(0.2, 0.4, 0.9)));
-    boundary = make_shared<Sphere>(Point3(0, 0, 0), 5000, make_shared<Dielectric>(1.5));
-    objects.add(make_shared<Constant_Medium>(boundary, .0001, Color(1,1,1)));
+    objects.add(new Constant_Medium(boundary, 0.2, Color(0.2, 0.4, 0.9)));
+    boundary = new Sphere(Point3(0, 0, 0), 5000, new Dielectric(1.5));
+    objects.add(new Constant_Medium(boundary, .0001, Color(1,1,1)));
 
-    auto emat = make_shared<Lambertian>(make_shared<Image_Text>("textures/earthmap.jpg"));
-    objects.add(make_shared<Sphere>(Point3(400,200,400), 100, emat));
-    auto pertext = make_shared<Noise_Text>(0.1);
-    objects.add(make_shared<Sphere>(Point3(220,280,300), 80, make_shared<Lambertian>(pertext)));
+    auto emat = new Lambertian(new Image_Text("textures/earthmap.jpg"));
+    objects.add(new Sphere(Point3(400,200,400), 100, emat));
+    auto pertext = new Noise_Text(0.1);
+    objects.add(new Sphere(Point3(220,280,300), 80, new Lambertian(pertext)));
 
     Hittable_List boxes2;
-    auto white = make_shared<Lambertian>(Color(.73, .73, .73));
+    auto white = new Lambertian(Color(.73, .73, .73));
     int ns = 1000;
     for (int j = 0; j < ns; j++) {
-        boxes2.add(make_shared<Sphere>(Point3::random(0,165), 10, white));
+        boxes2.add(new Sphere(Point3::random(0,165), 10, white));
     }
 
-    objects.add(make_shared<Translate>(make_shared<Rotate_Y>(make_shared<Bvh_Node>(boxes2, 0.0, 1.0), 15),Vec3(-100,270,395)));
+    objects.add(new Translate(new Rotate_Y(new Bvh_Node(boxes2, 0.0, 1.0), 15),Vec3(-100,270,395)));
 
     return objects;
 }
@@ -297,7 +297,7 @@ int main(int argc, char **argv)
     // Image
     float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int samples_per_pixel = 20;
+    int samples_per_pixel = 50;
     int max_depth = 50;
     int image_height;
 

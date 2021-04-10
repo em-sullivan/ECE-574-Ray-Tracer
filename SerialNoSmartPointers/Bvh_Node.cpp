@@ -10,7 +10,7 @@ Bvh_Node::Bvh_Node()
     // :_
 }
 
-Bvh_Node::Bvh_Node(const std::vector<shared_ptr<Hittable>>& src_objects, 
+Bvh_Node::Bvh_Node(const std::vector<Hittable *>& src_objects, 
     size_t start, size_t end, float time0, float time1)
 {
     auto objects = src_objects;
@@ -37,8 +37,8 @@ Bvh_Node::Bvh_Node(const std::vector<shared_ptr<Hittable>>& src_objects,
         std::sort(objects.begin() + start, objects.begin() + end, comparator);
 
         auto mid = start + object_span / 2;
-        left = make_shared<Bvh_Node>(objects, start, mid, time0, time1);
-        right = make_shared<Bvh_Node>(objects, mid, end, time0, time1);
+        left = new Bvh_Node(objects, start, mid, time0, time1);
+        right = new Bvh_Node(objects, mid, end, time0, time1);
     }
 
     Aabb box_left, box_right;
@@ -68,17 +68,17 @@ bool Bvh_Node::bounding_box(float time0, float time1, Aabb &output_box) const
     return true;
 }
 
-bool box_x_compare(const shared_ptr<Hittable> a, const shared_ptr<Hittable> b)
+bool box_x_compare(const Hittable *a, const Hittable *b)
 {
     return box_compare(a, b, 0);
 }
 
-bool box_y_compare(const shared_ptr<Hittable> a, const shared_ptr<Hittable> b)
+bool box_y_compare(const Hittable *a, const Hittable *b)
 {
     return box_compare(a, b, 1);
 }
 
-bool box_z_compare(const shared_ptr<Hittable> a, const shared_ptr<Hittable> b)
+bool box_z_compare(const Hittable *a, const Hittable *b)
 {
     return box_compare(a, b, 2);
 }

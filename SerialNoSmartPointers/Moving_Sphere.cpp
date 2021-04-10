@@ -10,7 +10,7 @@ Moving_Sphere::Moving_Sphere()
 }
 
 Moving_Sphere::Moving_Sphere(Point3 center0, Point3 center1, float _time0, 
-    float _time1, float r, shared_ptr<Material> m)
+    float _time1, float r, Material *m)
 {
     cen0 = center0;
     cen1 = center1;

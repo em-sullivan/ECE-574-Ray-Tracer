@@ -20,7 +20,7 @@ Color Material::emitted(float u, float v, const Point3& p) const
 //    albedo = make_shared<Solid_Color>(a);
 //}
 
-Lambertian::Lambertian(shared_ptr<Texture> a)
+Lambertian::Lambertian(Texture *a)
 {
     albedo = a;
 }
