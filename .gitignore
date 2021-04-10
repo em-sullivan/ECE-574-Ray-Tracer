@@ -2,3 +2,4 @@
 *.elf
 *.ppm
 *.data
+cudart
