@@ -8,7 +8,7 @@
 #include "Vec3.h"
 #include "Ray.h"
 #include "shader_consts.h"
-#include "aarect.h"
+#include "Aarect.h"
 #include "Hittable.h"
 #include "Hittable_List.h"
 
