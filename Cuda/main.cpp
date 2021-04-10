@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include "Vec3.h"
 
 // limited version of checkCudaErrors from helper_cuda.h in CUDA examples
 #define checkCudaErrors(val) check_cuda( (val), #val, __FILE__, __LINE__ )
@@ -18,18 +19,16 @@ void check_cuda(cudaError_t result, char const *const func, const char *const fi
     }
 }
 
-__global__ void render(float *fb, int max_x, int max_y)
+__global__ void render(Vec3 *fb, int max_x, int max_y)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
 
     if((i >= max_x) || (j >= max_y)) return;
  
-    int pixel_index = j*max_x*3 + i*3;
+    int pixel_index = j*max_x + i;
  
-    fb[pixel_index + 0] = float(i) / max_x;
-    fb[pixel_index + 1] = float(j) / max_y;
-    fb[pixel_index + 2] = 0.2;
+    fb[pixel_index] = Vec3( float(i) / max_x, float(j) / max_y, 0.2f);
 }
 
 int main(int argc, char **argv)
@@ -47,7 +46,7 @@ int main(int argc, char **argv)
     size_t fb_size = 3*num_pixels*sizeof(float);
 
     // allocate frame buffer (unified memory)
-    float *fb;
+    Vec3 *fb;
     checkCudaErrors(cudaMallocManaged((void **)&fb, fb_size));
 
     /****** Render and time frame buffer ******/
@@ -72,17 +71,17 @@ int main(int argc, char **argv)
     file.open("out.ppm", std::ios::out);
     std::streambuf *ppm_out = file.rdbuf();
 
+     // Redirect Cout
+    std::cout.rdbuf(ppm_out);
+
     // Output FB as Image
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
     for (int j = ny-1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
-            size_t pixel_index = j*3*nx + i*3;
-            float r = fb[pixel_index + 0];
-            float g = fb[pixel_index + 1];
-            float b = fb[pixel_index + 2];
-            int ir = int(255.99*r);
-            int ig = int(255.99*g);
-            int ib = int(255.99*b);
+            size_t pixel_index = j*nx + i;
+            int ir = int(255.99*fb[pixel_index].r());
+            int ig = int(255.99*fb[pixel_index].g());
+            int ib = int(255.99*fb[pixel_index].b());
             std::cout << ir << " " << ig << " " << ib << "\n";
         }
     }
