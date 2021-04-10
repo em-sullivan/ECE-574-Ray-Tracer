@@ -3,7 +3,7 @@ HOST_COMPILER  = g++
 NVCC           = $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)
 
 CFLAGS = -Wall -g -O2
-OBJS = main.o Vec3.o Ray.o Sphere.o Hittable_List.o Material.o  Aabb.o Texture.o Perlin.o#Camera.o  Moving_Sphere.o Bvh_Node.o Aarect.o Box.o Translate.o Constant_Medium.o
+OBJS = main.o Vec3.o Ray.o Color.o#Sphere.o Hittable_List.o Material.o  Aabb.o Texture.o Perlin.o#Camera.o  Moving_Sphere.o Bvh_Node.o Aarect.o Box.o Translate.o Constant_Medium.o
 
 # select one of these for Debug vs. Release
 NVCC_DBG       = -g -G

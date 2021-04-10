@@ -4,6 +4,7 @@
 #include <string>
 #include <time.h>
 #include "Vec3.h"
+#include "Color.h"
 #include "Ray.h"
 
 // limited version of checkCudaErrors from helper_cuda.h in CUDA examples
@@ -95,11 +96,12 @@ int main(int argc, char **argv)
     std::cout << "P3\n" << nx << " " << ny << "\n255\n";
     for (int j = ny-1; j >= 0; j--) {
         for (int i = 0; i < nx; i++) {
-            size_t pixel_index = j*nx + i;
-            int ir = int(255.99*fb[pixel_index].r());
-            int ig = int(255.99*fb[pixel_index].g());
-            int ib = int(255.99*fb[pixel_index].b());
+           size_t pixel_index = j*nx + i;
+            int ir = int(255.99*fb[pixel_index].x());
+            int ig = int(255.99*fb[pixel_index].y());
+            int ib = int(255.99*fb[pixel_index].z());
             std::cout << ir << " " << ig << " " << ib << "\n";
+            //writeColor(std::cout,fb[pixel_index],1);
         }
     }
 
