@@ -24,7 +24,7 @@ class Box : public Hittable
     private:
         Point3 box_min;
         Point3 box_max;
-        Hittable_List sides;
+        Hittable *list_ptr;
 };
 
 #endif

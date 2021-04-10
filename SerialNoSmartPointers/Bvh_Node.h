@@ -20,16 +20,16 @@ public:
     
     // Constructors
     Bvh_Node();
-    Bvh_Node(const Hittable_List &list, float time0, float time1) : Bvh_Node(list.objects, 0, list.objects.size(), time0, time1) {};
+    // Need to convert to list format instread of vector
+    //Bvh_Node(const Hittable_List &list, float time0, float time1) : Bvh_Node(list.objects, 0, list.objects.size(), time0, time1) {};
     
     //Bvh_Node(const Hittable_List &list, float time0, float time1)
     //        : Bvh_Node(list.objects, 0, list.objects.size(), time0, time1)
     //    {}
-    Bvh_Node(const std::vector<Hittable *>& src_objects, size_t start, size_t end, float time0, float time1);
+    Bvh_Node(Hittable **objects, size_t start, size_t end, float time0, float time1);
 
     virtual bool hit(const Ray &r, float t_min, float t_mix, hit_record &rec) const override;
     virtual bool bounding_box(float time0, float time1, Aabb &output_box) const override;
-
 
 private:
     Hittable *left;
