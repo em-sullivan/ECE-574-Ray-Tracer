@@ -5,18 +5,18 @@
 
 #include "Perlin.h"
 
-__device__  Perlin::Perlin()
+__device__  Perlin::Perlin(curandState *randState)
 {
     // Generate an array of random floats
     ranvec = new Vec3[point_count];
     for (int i = 0; i < point_count; i++) {
-        ranvec[i] = unitVector(Vec3::random(-1, 1));
+        ranvec[i] = unitVector(Vec3::random(-1, 1, randState));
     }
 
     // Generate perms
-    perm_x = perlinGeneratePerm();
-    perm_y = perlinGeneratePerm();
-    perm_z = perlinGeneratePerm();
+    perm_x = perlinGeneratePerm(randState);
+    perm_y = perlinGeneratePerm(randState);
+    perm_z = perlinGeneratePerm(randState);
 }
 
 __device__  Perlin::~Perlin()
@@ -30,9 +30,9 @@ __device__  Perlin::~Perlin()
 
 __device__  float Perlin::noise(const Point3 &p) const
 {
-    auto u = p.x() - floor(p.x());
-    auto v = p.y() - floor(p.y());
-    auto w = p.z() - floor(p.z());
+    auto u = p.x() - floorf(p.x());
+    auto v = p.y() - floorf(p.y());
+    auto w = p.z() - floorf(p.z());
 
     // Hermitian smoothing
     u = u * u * (3 - 2 * u);
@@ -72,23 +72,23 @@ __device__  float Perlin::turb(const Point3 &p, int depth) const
     return fabs(accum);
 }
 
-__device__  int* Perlin::perlinGeneratePerm()
+__device__  int* Perlin::perlinGeneratePerm(curandState *randState)
 {
     auto p = new int[point_count];
 
     for (int i = 0; i < Perlin::point_count; i++)
         p[i] = i;
 
-    permute(p, point_count);
+    permute(p, point_count, randState);
     return p;
 }
 
-__device__  void Perlin::permute(int *p, int n)
+__device__  void Perlin::permute(int *p, int n, curandState *randState)
 {
     int tmp;
 
     for (int i = n - 1; i > 0; i--) {
-        int target = random_int(0, i);
+        int target = random_int(0, i, randState);
         tmp = p[i];
         p[i] = p[target];
         p[target] = tmp;
