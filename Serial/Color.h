@@ -2,6 +2,9 @@
  * Utility Functions for Color class
  * Note - Color is just an alias for
  * a Vec3 class
+ * 
+ * NOTE: This is just around for legacy reasons, this is handled in the render
+ * file now lol
  */
 #ifndef COLOR_H
 #define COLOR_H

@@ -7,7 +7,6 @@
 #include <sstream>
 #include <string>
 #include "shader_consts.h"
-#include "Color.h"
 #include "Hittable_List.h"
 #include "Sphere.h"
 #include "Camera.h"
@@ -19,6 +18,7 @@
 #include "Translate.h"
 #include "Constant_Medium.h"
 #include "Bvh_Node.h"
+#include "render.h"
 
 Hittable_List random_balls()
 {
@@ -119,6 +119,15 @@ Hittable_List two_fuzzy_balls()
     world.add(make_shared<Sphere>(Point3(0, 2, 0), 2, make_shared<Lambertian>(fuzz)));
     
     return world;
+}
+
+Hittable_List earf()
+{
+    auto earf_texture = make_shared<Image_Text>("textures/earthmap.jpg");
+    auto earf_surface = make_shared<Lambertian>(earf_texture);
+    auto globe = make_shared<Sphere>(Point3(0, 0, 0), 2, earf_surface);
+
+    return Hittable_List(globe);
 }
 
 Hittable_List simple_light() 
@@ -297,7 +306,7 @@ int main(int argc, char **argv)
     // Image
     float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int samples_per_pixel = 20;
+    int samples_per_pixel = 500;
     int max_depth = 50;
     int image_height;
 
@@ -311,8 +320,21 @@ int main(int argc, char **argv)
     float aperture;
     float dist_to_focus;
 
-
     switch(image) {
+        case 0:
+            // Generate the earth 
+            world = earf();
+
+            // The camera
+            lookfrom = Point3(13, 2, 3);
+            lookat = Point3(0, 0, 0);
+            vup = Vec3(0, 1, 0);
+            background = Color(0.70, 0.80, 1.00);
+            fov = 20;
+            dist_to_focus = 10.0;
+            aperture = 0;
+            break;
+            
         case 1:
             // Generate three balls
             world = three_balls();
@@ -324,7 +346,7 @@ int main(int argc, char **argv)
             background = Color(0.70, 0.80, 1.00);
             fov = 20;
             dist_to_focus = (lookfrom-lookat).length();
-            aperture = 0.1;
+            aperture = 0;
             break;
 
         case 2:
@@ -419,6 +441,9 @@ int main(int argc, char **argv)
     Camera cam(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
     image_height = static_cast<int>(image_width / aspect_ratio);
 
+    // Render output variable
+    Vec3 *image_pixels = new Vec3[image_height * image_width * sizeof(Vec3)];
+
     // Output File
     std::fstream file;
     file.open("out.ppm", std::ios::out);
@@ -428,26 +453,13 @@ int main(int argc, char **argv)
     std::cout.rdbuf(ppm_out);
     
     // Render
-    std::cout << "P3\n" << image_width << " " << image_height << "\n255\n";
+    render(image_pixels, image_height, image_width, samples_per_pixel, max_depth,
+        cam, world, background);
 
-    for (int j = image_height - 1; j >= 0; j--) {
-        
-        // Progress indicator
-        std::cerr << "\rScanline remaining: " << j << ' ' << std::flush;
+    // Save image
+    saveImage(std::cout, image_pixels, image_height, image_width, samples_per_pixel);
 
-        for (int i = 0; i < image_width; i++) {
-            
-            Color pixel_color(0, 0, 0);
-            for(int s = 0; s < samples_per_pixel; s++) {
-                float u = (i + random_float()) / (image_width - 1);
-                float v = (j + random_float()) / (image_height - 1);
-                Ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, background, world, max_depth);
-            }
-            writeColor(std::cout, pixel_color, samples_per_pixel);
-        }
-        
-    }
+    delete rendered;
 
     std::cerr << "\nDone" << std::endl;
     file.close();
