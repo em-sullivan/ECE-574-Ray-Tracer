@@ -26,11 +26,11 @@ void check_cuda(cudaError_t result, char const *const func, const char *const fi
     }
 }
 
-__device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_rand_state) 
+__device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_rand_state, int depth) 
 {
     Ray cur_ray = r;
     Vec3 cur_attenuation = Vec3(1.0,1.0,1.0);
-    for(int i = 0; i < 50; i++) {
+    for(int i = 0; i < depth; i++) {
         hit_record rec;
         if ((*world)->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
             Ray scattered;
@@ -63,26 +63,26 @@ __global__ void render_init(int max_x, int max_y, curandState *rand_state)
     curand_init(1984, pixel_index, 0, &rand_state[pixel_index]);
 }
 
-__global__ void render(Vec3 *fb, int max_x, int max_y, int ns, Camera **cam, Hittable **world, curandState *rand_state)
+__global__ void render(Vec3 *fb, int max_x, int max_y, int ns, Camera **cam, Hittable **world, curandState *rand_state, int depth)
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
     if((i >= max_x) || (j >= max_y)) return;
     int pixel_index = j*max_x + i;
     curandState local_rand_state = rand_state[pixel_index];
-    Vec3 col(0,0,0);
+    Color pixel_color(0,0,0);
     for(int s=0; s < ns; s++) {
-        float u = float(i + curand_uniform(&local_rand_state)) / float(max_x);
-        float v = float(j + curand_uniform(&local_rand_state)) / float(max_y);
+        float u = float(i + random_float(&local_rand_state)) / float(max_x);
+        float v = float(j + random_float(&local_rand_state)) / float(max_y);
         Ray r = (*cam)->get_ray(u,v, &local_rand_state);
-        col += ray_color(r, world, &local_rand_state);
+        pixel_color += ray_color(r, world, &local_rand_state, depth);
     }
     rand_state[pixel_index] = local_rand_state;
-    col /= float(ns);
-    col[0] = sqrt(col[0]);
-    col[1] = sqrt(col[1]);
-    col[2] = sqrt(col[2]);
-    fb[pixel_index] = col;
+    pixel_color /= float(ns);
+    pixel_color[0] = sqrtf(pixel_color[0]);
+    pixel_color[1] = sqrtf(pixel_color[1]);
+    pixel_color[2] = sqrtf(pixel_color[2]);
+    fb[pixel_index] = pixel_color;
 }
 
 __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny)
@@ -112,9 +112,11 @@ int main(int argc, char **argv)
     /****** Set up image size, block size, and frame buffer ******/
     int nx = 1200;
     int ny = 600;
+    int depth = 10;
     int ns = 1;
     int tx = 8;
     int ty = 8;
+    
 
     std::cerr << "Rendering a " << nx << "x" << ny << " image with " << ns << " samples per pixel ";
     std::cerr << "in " << tx << "x" << ty << " blocks.\n";
@@ -126,17 +128,27 @@ int main(int argc, char **argv)
     Vec3 *fb;
     checkCudaErrors(cudaMallocManaged((void **)&fb, fb_size));
 
+      std::cerr << "Before rand.\n";
+
     // allocate random state
     curandState *d_rand_state;
     checkCudaErrors(cudaMalloc((void **)&d_rand_state, num_pixels*sizeof(curandState)));
 
+      std::cerr << "Before list.\n";
+
     // make our world of hittables
     Hittable **d_list;
     checkCudaErrors(cudaMalloc((void **)&d_list, 5*sizeof(Hittable *)));
+
+    std::cerr << "Before world.\n";
     Hittable **d_world;
     checkCudaErrors(cudaMalloc((void **)&d_world, sizeof(Hittable *)));
+
+    std::cerr << "Before camera.\n";
     Camera **d_camera;
     checkCudaErrors(cudaMalloc((void **)&d_camera, sizeof(Camera *)));
+
+    std::cerr << "Before create world.\n";
     create_world<<<1,1>>>(d_list,d_world,d_camera, nx, ny);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
@@ -148,17 +160,23 @@ int main(int argc, char **argv)
     // Render our buffer
     dim3 blocks(nx/tx+1,ny/ty+1);
     dim3 threads(tx,ty);
+    std::cerr << "Before Render Init.\n";
 
     render_init<<<blocks, threads>>>(nx, ny, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
-    render<<<blocks, threads>>>(fb, nx, ny,  ns, d_camera, d_world, d_rand_state);
+
+      std::cerr << "Before Render.\n";
+
+    render<<<blocks, threads>>>(fb, nx, ny,  ns, d_camera, d_world, d_rand_state, depth);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
     
+     std::cerr << "After Render.\n";
+
     stop = clock();
     double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
-    std::cerr << "took " << timer_seconds << " seconds.\n";
+    std::cout << "took " << timer_seconds << " seconds.\n";
 
 
     // Output File
@@ -174,11 +192,11 @@ int main(int argc, char **argv)
     for (int j = ny-1;  j >= 0;  j--) {
         for (int i = 0;  i < nx;  i++) {
            size_t pixel_index = j*nx + i;
-            int ir = int(255.99*fb[pixel_index].x());
-            int ig = int(255.99*fb[pixel_index].y());
-            int ib = int(255.99*fb[pixel_index].z());
-            std::cout << ir << " " << ig << " " << ib << "\n";
-            //writeColor(std::cout,fb[pixel_index],1);
+            //int ir = int(255.99*fb[pixel_index].x());
+            //int ig = int(255.99*fb[pixel_index].y());
+            //int ib = int(255.99*fb[pixel_index].z());
+            //std::cout << ir << " " << ig << " " << ib << "\n";
+            writeColor(std::cout,fb[pixel_index]);
         }
     }
 
