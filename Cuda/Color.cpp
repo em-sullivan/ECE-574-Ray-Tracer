@@ -17,9 +17,9 @@ __host__ void writeColor(std::ostream &out, Color pixel_color, int samples_per_p
 
     // Divide color by number of samples and gamma-correct for gamma = 2.0.
     float scale = 1.0 / samples_per_pixel;
-    r = sqrt(r * scale);
-    g = sqrt(g * scale);
-    b = sqrt(b * scale);
+    r = sqrtf(r * scale);
+    g = sqrtf(g * scale);
+    b = sqrtf(b * scale);
 
     // Print out RGB in [0, 255] form
     out << static_cast<int>(256 * clamp(r, 0.0, 0.99)) << " "
