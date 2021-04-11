@@ -6,7 +6,6 @@
 #define HITTABLE_LIST_H
 
 #include <memory>
-#include <vector>
 #include "Hittable.h"
 #include "Aabb.h"
 
