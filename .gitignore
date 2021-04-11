@@ -3,4 +3,5 @@
 *.vscode
 *.ppm
 *.data
+*.jason
 cudart
