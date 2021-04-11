@@ -20,7 +20,7 @@ public:
      __device__ virtual bool hit(const Ray &r, float t_min, float t_max, hit_record &rec) const override;
      __device__ virtual bool bounding_box(float time0, float time1, Aabb &output_box) const override;
 
-private:
+//private:
     Point3 center;
     float radius;
     Material *mat_ptr;
