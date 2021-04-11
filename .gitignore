@@ -1,6 +1,8 @@
 *.o
 *.elf
-*.vscode
+*.vscode\settings.json
 *.ppm
 *.data
 cudart
+.vscode/settings.json
+*.json

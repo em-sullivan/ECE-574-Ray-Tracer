@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <chrono>
 #include "shader_consts.h"
 #include "Hittable_List.h"
 #include "Sphere.h"
@@ -19,6 +20,8 @@
 #include "Constant_Medium.h"
 #include "Bvh_Node.h"
 #include "render.h"
+
+using namespace std::chrono;
 
 Hittable_List random_balls()
 {
@@ -307,6 +310,8 @@ int main(int argc, char **argv)
         std::stringstream str_to_int(argv[1]);
         str_to_int >> image;
     }
+
+    auto program_start = high_resolution_clock::now();
     
     // Image
     float aspect_ratio = 16.0f / 9.0f;
@@ -452,21 +457,40 @@ int main(int argc, char **argv)
     // Output File
     std::fstream file;
     file.open("out.ppm", std::ios::out);
-    std::streambuf *ppm_out = file.rdbuf();
+    //std::streambuf *ppm_out = file.rdbuf();
 
     // Redirect Cout
-    std::cout.rdbuf(ppm_out);
+    //std::cout.rdbuf(ppm_out);
     
     // Render
+    auto render_time_start = high_resolution_clock::now();
     render(image_pixels, image_height, image_width, samples_per_pixel, max_depth,
         cam, world, background);
+    auto render_time_end = high_resolution_clock::now();
 
     // Save image
-    saveImage(std::cout, image_pixels, image_height, image_width, samples_per_pixel);
+    auto save_time_start = high_resolution_clock::now();
+    saveImage(file, image_pixels, image_height, image_width, samples_per_pixel);
+    auto save_time_end = high_resolution_clock::now();
 
     delete image_pixels;
 
     std::cerr << "\nDone" << std::endl;
     file.close();
+
+    // Print timing of program
+    // Total Time
+    auto program_end = high_resolution_clock::now();
+    auto time = duration_cast<seconds>(program_end - program_start);
+    std::cout << "Time :" << time.count() << "s" << std::endl;
+
+    // Render Time
+    auto render_time = duration_cast<seconds>(render_time_end - render_time_start);
+    std::cout << "Render time : " << render_time.count() << "s" << std::endl;
+
+    // Save image time
+    auto save_time = duration_cast<milliseconds>(save_time_end - save_time_start);
+    std::cout << "Image save time " << save_time.count() << "ms" << std::endl;
+
     return 0;
 }

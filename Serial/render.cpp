@@ -69,7 +69,7 @@ void render(Color *image, int height, int width, int spp, int depth,
 
 void saveImage(std::ostream &out, Color *pixels, int height, int width, int spp)
 {
-    std::cout << "P3\n" << width << " " << height << "\n255\n";
+    out << "P3\n" << width << " " << height << "\n255\n";
 
     for (int j = height - 1; j>= 0; j--) {
         for (int i = 0; i < width; i++) {
