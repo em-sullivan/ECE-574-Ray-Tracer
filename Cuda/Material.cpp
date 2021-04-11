@@ -20,7 +20,7 @@ __device__ Color Material::emitted(float u, float v, const Point3& p) const
 //    albedo = make_shared<Solid_Color>(a);
 //}
 
-__device__ Lambertian::Lambertian(Texture a)
+__device__ Lambertian::Lambertian(Texture *a)
 {
     albedo = a;
 }

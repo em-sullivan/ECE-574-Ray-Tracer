@@ -2,9 +2,6 @@
 
 bool Constant_Medium::hit(const Ray& r, float t_min, float t_max, hit_record& rec) const 
 {
-    // Print occasional samples when debugging. To enable, set enableDebug true.
-    const bool enableDebug = false;
-    const bool debugging = enableDebug && random_float() < 0.00001;
 
     hit_record rec1, rec2;
 
@@ -13,8 +10,6 @@ bool Constant_Medium::hit(const Ray& r, float t_min, float t_max, hit_record& re
 
     if (!boundary->hit(r, rec1.t+0.0001, INF, rec2))
         return false;
-
-    if (debugging) std::cerr << "\nt_min=" << rec1.t << ", t_max=" << rec2.t << '\n';
 
     if (rec1.t < t_min) rec1.t = t_min;
     if (rec2.t > t_max) rec2.t = t_max;
@@ -35,12 +30,6 @@ bool Constant_Medium::hit(const Ray& r, float t_min, float t_max, hit_record& re
 
     rec.t = rec1.t + hit_distance / ray_length;
     rec.p = r.at(rec.t);
-
-    if (debugging) {
-        std::cerr << "hit_distance = " <<  hit_distance << '\n'
-                  << "rec.t = " <<  rec.t << '\n'
-                  << "rec.p = " <<  rec.p << '\n';
-    }
 
     rec.normal = Vec3(1,0,0);  // arbitrary
     rec.front_face = true;     // also arbitrary

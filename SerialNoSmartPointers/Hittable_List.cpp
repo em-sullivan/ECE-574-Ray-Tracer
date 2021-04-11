@@ -10,19 +10,10 @@ Hittable_List::Hittable_List()
     return;
 }
 
-Hittable_List::Hittable_List(Hittable *object)
+Hittable_List::Hittable_List(Hittable **object, int n)
 {
-    add(object);
-}
-
-void Hittable_List::clear()
-{
-    objects.clear();
-}
-
-void Hittable_List::add(Hittable *object)
-{
-    objects.push_back(object);
+    objects = object;
+    list_size = n;
 }
 
 bool Hittable_List::hit(const Ray &r, float t_min, float t_max, hit_record &rec) const
@@ -31,34 +22,36 @@ bool Hittable_List::hit(const Ray &r, float t_min, float t_max, hit_record &rec)
     bool hit_any = false;
     float closest = t_max;
 
-    // Loop through the objects in the Hittable List
-    for (const auto &object: objects) {
-
-        // Update Closest - if anything is hit
-        if (object->hit(r, t_min, closest, temp)) {
+    for (int i = 0; i < list_size; i++) {
+        if (objects[i]->hit(r, t_min, closest, temp)) {
             hit_any = true;
             closest = temp.t;
             rec = temp;
         }
     }
-
     return hit_any;
 }
 
 bool Hittable_List::bounding_box(float time0, float time1, Aabb &output_box) const
 {
     // If hitable list is empty
-    if (objects.empty()) return false;
+    if (list_size < 1) return false;
 
     Aabb temp;
-    bool first_box = true;
 
-    for (const auto &object : objects) {
-        if (!object->bounding_box(time0, time1, temp)) return false;
-
-        output_box = first_box ? temp : surrounding_box(output_box, temp);
-        first_box = false;
+    bool first_box =  objects[0]->bounding_box(time0, time1, temp);
+    
+    if (!first_box) {
+        return false;
+    } else {
+        output_box = temp;
     }
-
+    for (int i = 1; i < list_size; i++) {
+        if(objects[i]->bounding_box(time0, time1, temp)) {
+            output_box = surrounding_box(output_box, temp);
+        }
+        else
+            return false;
+    }
     return true;
 }

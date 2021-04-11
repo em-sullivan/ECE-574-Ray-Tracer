@@ -37,21 +37,6 @@ __host__ __device__ float Vec3::z() const
     return coords[2];
 }
 
-__host__ __device__ float Vec3::r() const
-{
-    return coords[0];
-}
-
-__host__ __device__ float Vec3::g() const
-{
-    return coords[1];
-}
-
-__host__ __device__ float Vec3::b() const
-{
-    return coords[2];
-}
-
 __host__ __device__ Vec3 Vec3::operator-() const
 {
     return Vec3(-coords[0], -coords[1], -coords[2]);

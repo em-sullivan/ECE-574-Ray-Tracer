@@ -91,9 +91,9 @@ class Image_Text : public Texture
 public: 
     const static int bytes_per_pixel = 3;
 
-    __device__ Image_Text();
-    __device__ Image_Text(const char *filename);
-    __device__  ~Image_Text();
+    __host__ Image_Text();
+    __host__ Image_Text(const char *filename);
+    __host__  ~Image_Text();
 
     __device__  virtual Color value(float u, float v, const Point3 &p) const override;
 

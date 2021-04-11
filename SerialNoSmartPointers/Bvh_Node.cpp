@@ -10,10 +10,8 @@ Bvh_Node::Bvh_Node()
     // :_
 }
 
-Bvh_Node::Bvh_Node(const std::vector<Hittable *>& src_objects, 
-    size_t start, size_t end, float time0, float time1)
+Bvh_Node::Bvh_Node(Hittable **objects, size_t start, size_t end, float time0, float time1)
 {
-    auto objects = src_objects;
 
     int axis = random_int(0, 2);
     auto comparator = (axis == 0) ? box_x_compare
@@ -34,7 +32,7 @@ Bvh_Node::Bvh_Node(const std::vector<Hittable *>& src_objects,
         }
     } else {
 
-        std::sort(objects.begin() + start, objects.begin() + end, comparator);
+        //std::sort(objects.begin() + start, objects.begin() + end, comparator);
 
         auto mid = start + object_span / 2;
         left = new Bvh_Node(objects, start, mid, time0, time1);
@@ -44,11 +42,10 @@ Bvh_Node::Bvh_Node(const std::vector<Hittable *>& src_objects,
     Aabb box_left, box_right;
 
     if (!left->bounding_box(time0, time1, box_left) || !right->bounding_box(time0, time1, box_right))
-        std::cerr << "No Bounding box in Bvh_Node constructor" << std::endl;
+        //std::cerr << "No Bounding box in Bvh_Node constructor" << std::endl;
 
     box = surrounding_box(box_left, box_right); 
 }
-
 
 bool Bvh_Node::hit(const Ray &r, float t_min, float t_max, hit_record &rec) const
 {

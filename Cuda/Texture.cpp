@@ -68,7 +68,7 @@ __device__  Color Noise_Text::value(float u, float v, const Point3 &p) const
     return Color(1, 1, 1) * 0.5 * (1 + sin(scale * p.z() + 10 * noise.turb(p)));
 }
 
-__device__  Image_Text::Image_Text()
+__host__  Image_Text::Image_Text()
 {
     data = nullptr;
     width = 0;
@@ -76,7 +76,7 @@ __device__  Image_Text::Image_Text()
     bytes_per_scaneline = 0;
 }
 
-__device__ Image_Text::Image_Text(const char *filename)
+__host__ Image_Text::Image_Text(const char *filename)
 {
     auto components_per_pixel = bytes_per_pixel;
 
@@ -93,7 +93,7 @@ __device__ Image_Text::Image_Text(const char *filename)
     bytes_per_scaneline = bytes_per_pixel * width;
 }
 
-__device__  Image_Text::~Image_Text()
+__host__  Image_Text::~Image_Text()
 {
     delete data;
 }
