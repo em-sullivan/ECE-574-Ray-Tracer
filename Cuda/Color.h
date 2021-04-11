@@ -10,6 +10,6 @@
 #include "Vec3.h"
 
 // Write RGB value of color vector
-__host__ void writeColor(std::ostream &out, Color pixelColor, int samples_per_pixel);
+__host__ void writeColor(std::ostream &out, Color pixelColor);// int samples_per_pixel);
 
 #endif // COLOR_H
