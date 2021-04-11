@@ -3,7 +3,6 @@
  */
 
 #include <iostream>
-#include <cmath>
 #include "Vec3.h"
 
 using std::sqrt;
@@ -98,7 +97,7 @@ __host__ __device__ Vec3& Vec3::operator/=(const float t)
 
 __host__ __device__ float Vec3::length() const
 {
-    return sqrt(lengthSquared());
+    return sqrtf(lengthSquared());
 }
 
 __host__ __device__ float Vec3::lengthSquared() const
@@ -112,17 +111,17 @@ __host__ __device__ bool Vec3::nearZero() const
 {
     // Return true if the vector is close to zero in all dimensions
     const float s = 1e-8;
-    return (fabs(coords[0]) < s) && fabs(coords[1] < s) && fabs(coords[2] < 2);
+    return (fabsf(coords[0]) < s) && fabsf(coords[1] < s) && fabsf(coords[2] < 2);
 }
 
-__host__ __device__ Vec3 randomUnitVector()
+__device__ Vec3 randomUnitVector(curandState *local_rand_state)
 {
-    return unitVector(randomInUnitSphere());
+    return unitVector(randomInUnitSphere(local_rand_state));
 }
 
-__host__ __device__ Vec3 randomInHemisphere(const Vec3 &normal)
+__device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_state)
 {
-    Vec3 in_unit_sphere = randomInUnitSphere();
+    Vec3 in_unit_sphere = randomInUnitSphere(local_rand_state);
 
     // In the same hemisphere as the normal
     if (dot(in_unit_sphere, normal) > 0.0)
@@ -138,17 +137,17 @@ __host__ __device__ Vec3 reflect(const Vec3 &v, const Vec3 &n)
 
 __host__ __device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float etai_over_etat)
 {
-    float cos_theta = fmin(dot(-v1, v2), 1.0);
+    float cos_theta = fminf(dot(-v1, v2), 1.0);
     Vec3 r_out_perp = etai_over_etat * (v1 + cos_theta * v2);
-    Vec3 r_out_parallel = -sqrt(fabs(1.0 - r_out_perp.lengthSquared())) * v2;
+    Vec3 r_out_parallel = -sqrtf(fabsf(1.0 - r_out_perp.lengthSquared())) * v2;
     return r_out_perp + r_out_parallel;
 }
 
-__host__ __device__ Vec3 randomInUnitDisk()
+__device__ Vec3 randomInUnitDisk(curandState *local_rand_state)
 {
-    while (true) {
-        auto p = Vec3(random_float(-1, 1), random_float(-1, 1), 0);
-        if (p.lengthSquared() >= 1) continue;
-        return p;
-    }
+    Vec3 p;
+    do {
+        p = 2.0f*Vec3(random_float(local_rand_state),random_float(local_rand_state),0) - Vec3(1,1,0);
+    } while (dot(p,p) >= 1.0f);
+    return p;
 }

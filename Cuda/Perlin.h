@@ -15,7 +15,8 @@ class Perlin
 {
 public:
     // Constructor
-    __device__ Perlin();
+    __device__ Perlin() {};
+    __device__ Perlin(curandState *randState);
 
     // Deconstructor
     __device__  ~Perlin();
@@ -30,8 +31,8 @@ private:
     int *perm_y;
     int *perm_z;
 
-    __device__ static int* perlinGeneratePerm();
-    __device__  static void permute(int *p, int n);
+    __device__ static int* perlinGeneratePerm(curandState *randState);
+    __device__  static void permute(int *p, int n, curandState *randState);
     __device__  static float perlinInterp(Vec3 c[2][2][2], float u, float v, float w);
 };
 

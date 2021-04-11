@@ -3,6 +3,7 @@
 *.vscode\settings.json
 *.ppm
 *.data
+*.jason
 cudart
 .vscode/settings.json
 *.json
