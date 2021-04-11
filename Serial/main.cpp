@@ -263,6 +263,11 @@ Hittable_List final_scene()
     return objects;
 }
 
+/*
+ * Don't need this any more because of the render function, but I will
+ * keep it here just in case
+ */
+/*
 Color ray_color(const Ray &r, const Color& background, const Hittable &world, int depth)
 {
     hit_record rec;
@@ -459,7 +464,7 @@ int main(int argc, char **argv)
     // Save image
     saveImage(std::cout, image_pixels, image_height, image_width, samples_per_pixel);
 
-    delete rendered;
+    delete image_pixels;
 
     std::cerr << "\nDone" << std::endl;
     file.close();
