@@ -29,9 +29,40 @@ void check_cuda(cudaError_t result, char const *const func, const char *const fi
 __device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_rand_state, int depth) 
 {
     Ray cur_ray = r;
-    Vec3 cur_attenuation = Vec3(1.0,1.0,1.0);
+    Vec3 cur_attenuation = Color(1.0,1.0,1.0);
+
     for(int i = 0; i < depth; i++) {
         hit_record rec;
+        
+        if (!(*world)->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
+            Vec3 unit_direction = unitVector(cur_ray.direction());
+            float t = 0.5f*(unit_direction.y() + 1.0f);
+            Vec3 c = (1.0f-t)*Vec3(1.0, 1.0, 1.0) + t*Vec3(0.5, 0.7, 1.0);
+            return cur_attenuation * c;
+        }
+            
+        Ray scattered;
+        Color attenuation;
+
+        if(rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
+            cur_attenuation = attenuation*cur_attenuation;
+            cur_ray = scattered;
+        } else {
+            return Color(0.0,0.0,0.0);
+        }
+    }
+    return Color(0.0,0.0,0.0); // exceeded recursion
+}
+
+/*
+__device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_rand_state, int depth) 
+{
+    Ray cur_ray = r;
+    Vec3 cur_attenuation = Vec3(1.0,1.0,1.0);
+
+    for(int i = 0; i < depth; i++) {
+        hit_record rec;
+        
         if ((*world)->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
             Ray scattered;
             Vec3 attenuation;
@@ -52,6 +83,7 @@ __device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_ra
     }
     return Vec3(0.0,0.0,0.0); // exceeded recursion
 }
+*/
 
 __global__ void render_init(int max_x, int max_y, curandState *rand_state)
 {
@@ -67,10 +99,14 @@ __global__ void render(Vec3 *fb, int max_x, int max_y, int ns, Camera **cam, Hit
 {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
     int j = threadIdx.y + blockIdx.y * blockDim.y;
-    if((i >= max_x) || (j >= max_y)) return;
+    if((i >= max_x) || (j >= max_y)) {
+        return;
+    }
+    
     int pixel_index = j*max_x + i;
     curandState local_rand_state = rand_state[pixel_index];
     Color pixel_color(0,0,0);
+    
     for(int s=0; s < ns; s++) {
         float u = float(i + random_float(&local_rand_state)) / float(max_x);
         float v = float(j + random_float(&local_rand_state)) / float(max_y);
@@ -94,7 +130,7 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
         d_list[3] = new Sphere(Vec3(-1,0,-1), 0.5, new Dielectric(1.5));
         d_list[4] = new Sphere(Vec3(-1,0,-1), -0.45, new Dielectric(1.5));
         *d_world = new Hittable_List(d_list,5);
-        *d_camera   = new Camera(Vec3(-2,2,1),Vec3(0,0,-1),Vec3(0,1,0), 20.0f, float(nx)/float(ny), 0.0, 10.0, 0.0, 1.0);
+        *d_camera   = new Camera(Point3(-2,2,1),Point3(0,0,-1),Vec3(0,1,0), 20.0f, float(nx)/float(ny), 0.1, 10.0, 0.0, 1.0);
     }
 }
 
