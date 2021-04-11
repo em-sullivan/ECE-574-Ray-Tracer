@@ -5,9 +5,9 @@ it was relatively easy to use.
 
 To change the amount of threads used, run:
 
-'''
+```
 export OMP_NUM_THREADS=N
-'''
+```
 
 Where N is the number of threads.
 
