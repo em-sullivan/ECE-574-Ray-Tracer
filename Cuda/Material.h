@@ -15,7 +15,7 @@ struct hit_record;
 class Material
 {
 public:
-    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const;
+    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const;
     __device__ virtual Color emitted(float u, float v, const Point3& p) const; 
 };
 
@@ -30,7 +30,7 @@ public:
 
     __device__ Lambertian(Texture *a);
 
-    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
+    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const override;
 
 private:
     //Color albedo;
@@ -43,7 +43,7 @@ public:
     // Constructor
     __device__ Metal(const Color &a, float in_fuzz);
 
-    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
+    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const override;
 
 private:
     Color albedo;
@@ -54,7 +54,7 @@ class Dielectric : public Material
 {
 public:
     __device__ Dielectric(float refraction_index);
-    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered) const override;
+    __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const override;
     __device__ static float reflectance(float cosine, float ref);
 
 private:
@@ -78,7 +78,7 @@ public:
         emit = new Solid_Color (c);
     }
 
-    __device__ virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override;
+    __device__ virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered, curandState *local_rand_state) const override;
     __device__ virtual Color emitted(float u, float v, const Point3& p) const override;
 
 private:
@@ -94,7 +94,7 @@ public:
     }
     __device__ Isotropic(Texture *a) : albedo(a) {}
 
-    __device__ virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override;
+    __device__ virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered, curandState *local_rand_state) const override;
 
 private:
     Texture *albedo;
