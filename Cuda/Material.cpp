@@ -4,6 +4,31 @@
 
 #include "Material.h"
 
+__device__ Vec3 randomInUnitSphere(curandState *local_rand_state) 
+{
+    Vec3 p;
+    do {
+        p = 2.0f*RANDVEC3 - Vec3(1,1,1);
+    } while (p.lengthSquared() >= 1.0f);
+    return p;
+}
+
+__device__ Vec3 randomUnitVector(curandState *local_rand_state)
+{
+    return unitVector(randomInUnitSphere(local_rand_state));
+}
+
+__device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_state)
+{
+    Vec3 in_unit_sphere = randomInUnitSphere(local_rand_state);
+
+    // In the same hemisphere as the normal
+    if (dot(in_unit_sphere, normal) > 0.0)
+        return in_unit_sphere;
+    else
+        return -in_unit_sphere;
+}
+
 __device__ bool Material::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const
 {
     // Generic implementation - does nothing
@@ -28,13 +53,14 @@ __device__ Lambertian::Lambertian(Texture *a)
 __device__  bool Lambertian::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const
 {
     auto scatter_dir = rec.normal + randomUnitVector(local_rand_state);
-    //auto scatter_dir = randomInHemisphere(rec.normal);
+    //auto scatter_dir = randomInHemisphere(rec.normal, local_rand_state);
 
     // Catch degenerate scatter direction
     if (scatter_dir.nearZero())
         scatter_dir = rec.normal;
 
     scattered = Ray(rec.p, scatter_dir, r_in.time());
+    //attenuation = albedo;
     attenuation = albedo->value(rec.u, rec.v, rec.p);
     return true;
 }
@@ -50,7 +76,7 @@ __device__ bool Metal::scatter(const Ray &r_in, hit_record &rec, Color &attenuat
     Vec3 reflected = reflect(unitVector(r_in.direction()), rec.normal);
     scattered = Ray(rec.p, reflected + fuzz * randomInUnitSphere(local_rand_state), r_in.time());
     attenuation = albedo;
-    return (dot(scattered.direction(), rec.normal) > 0);
+    return (dot(scattered.direction(), rec.normal) > 0.0f);
 }
 
 __device__ Dielectric::Dielectric(float refraction_index)
