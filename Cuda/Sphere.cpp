@@ -60,8 +60,8 @@
      * v - return value [0, 1] of angle from y=-1 tp y=1
      */
 
-    auto theta = acos(-p.y());
-    auto phi = atan2(-p.z(), p.x()) + PI;
+    auto theta = acosf(-p.y());
+    auto phi = atan2f(-p.z(), p.x()) + PI;
 
     u = phi / (2 * PI);
     v = theta / PI;
