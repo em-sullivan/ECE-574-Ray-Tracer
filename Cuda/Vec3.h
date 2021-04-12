@@ -57,6 +57,7 @@ private:
 __host__ __device__ Vec3 reflect(const Vec3 &v, const Vec3 &n);
 __host__ __device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float eta_over_eta);
 __device__ Vec3 randomInUnitDisk(curandState *local_rand_state);
+__device__ Vec3 randomInUnitSphere(curandState *local_rand_state);
 
 inline std::ostream& operator<<(std::ostream &out, const Vec3 &v)
 {
@@ -112,13 +113,6 @@ __host__ __device__ inline Vec3 unitVector(Vec3 v)
     return v / v.length();
 }
 
-__device__ inline Vec3 randomInUnitSphere(curandState *local_rand_state) {
-    Vec3 p;
-    do {
-        p = 2.0f*Vec3::random(local_rand_state) - Vec3(1,1,1);
-    } while (p.lengthSquared() >= 1.0f);
-    return p;
-}
 
 //Vec3 randomUnitVector();
 //Vec3 randomInHemisphere(const Vec3 &normal);

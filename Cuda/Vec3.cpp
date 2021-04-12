@@ -146,7 +146,15 @@ __host__ __device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float etai_over
 __device__ Vec3 randomInUnitDisk(curandState *local_rand_state)
 {
     while (true) {
-        auto p = Vec3(random_float(-1, 1, local_rand_state), random_float(-1, 1,local_rand_state), 0);
+        auto p = Vec3(random_float(local_rand_state), random_float(local_rand_state), 0);
+        if (p.lengthSquared() >= 1) continue;
+        return p;
+   }
+}
+
+__device__ Vec3 randomInUnitSphere(curandState *local_rand_state) {
+    while (true) {
+        auto p = Vec3::random(-1, 1, local_rand_state);
         if (p.lengthSquared() >= 1) continue;
         return p;
     }
