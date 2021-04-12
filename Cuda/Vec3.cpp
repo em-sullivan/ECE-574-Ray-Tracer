@@ -111,9 +111,9 @@ __host__ __device__ bool Vec3::nearZero() const
 {
     // Return true if the vector is close to zero in all dimensions
     const float s = 1e-8;
-    return (fabsf(coords[0]) < s) && fabsf(coords[1] < s) && fabsf(coords[2] < 2);
+    return (fabsf(coords[0]) < s) && fabsf(coords[1] < s) && fabsf(coords[2] < s);
 }
-
+/*
 __device__ Vec3 randomUnitVector(curandState *local_rand_state)
 {
     return unitVector(randomInUnitSphere(local_rand_state));
@@ -129,20 +129,20 @@ __device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_s
     else
         return -in_unit_sphere;
 }
-
-__host__ __device__ Vec3 reflect(const Vec3 &v, const Vec3 &n)
+*/
+__device__ Vec3 reflect(const Vec3 &v, const Vec3 &n)
 {
     return v - 2 * dot(v, n) * n;
 }
 
-__host__ __device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float etai_over_etat)
+__device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float etai_over_etat)
 {
     float cos_theta = fminf(dot(-v1, v2), 1.0);
     Vec3 r_out_perp = etai_over_etat * (v1 + cos_theta * v2);
     Vec3 r_out_parallel = -sqrtf(fabsf(1.0 - r_out_perp.lengthSquared())) * v2;
     return r_out_perp + r_out_parallel;
 }
-
+/*
 __device__ Vec3 randomInUnitDisk(curandState *local_rand_state)
 {
     while (true) {
@@ -154,8 +154,16 @@ __device__ Vec3 randomInUnitDisk(curandState *local_rand_state)
 
 __device__ Vec3 randomInUnitSphere(curandState *local_rand_state) {
     while (true) {
-        auto p = Vec3::random(-1, 1, local_rand_state);
+        auto p = Vec3::random(local_rand_state)-Vec3(1,1,1);
         if (p.lengthSquared() >= 1) continue;
         return p;
     }
+}
+*/
+    __host__ __device__ Vec3& Vec3::operator*=(const Vec3 &v)
+    {
+    coords[0]  *= v.coords[0];
+    coords[1]  *= v.coords[1];
+    coords[2]  *= v.coords[2];
+    return *this;
 }

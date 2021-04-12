@@ -34,13 +34,14 @@ public:
     __host__ __device__ Vec3& operator-=(const Vec3 &v);
     __host__ __device__ Vec3& operator*=(const float t);
     __host__ __device__ Vec3& operator/=(const float t);
+    __host__ __device__ Vec3&operator*=(const Vec3 &v);
 
     __host__ __device__ float length() const;
     __host__ __device__ float lengthSquared() const;
     __host__ __device__ bool nearZero() const;
 
     __device__ inline static Vec3 random(curandState *randState) {
-        return Vec3(random_float(randState), random_float(randState), random_float(randState));
+        return Vec3(curand_uniform(randState), curand_uniform(randState), curand_uniform(randState));
     }
 
     __device__ inline static Vec3 random(float min, float max, curandState *randState) {
@@ -52,12 +53,12 @@ private:
 };
 
 // Utility Functions
- __device__ Vec3 randomUnitVector(curandState *local_rand_state);
- __device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_state);
-__host__ __device__ Vec3 reflect(const Vec3 &v, const Vec3 &n);
-__host__ __device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float eta_over_eta);
-__device__ Vec3 randomInUnitDisk(curandState *local_rand_state);
-__device__ Vec3 randomInUnitSphere(curandState *local_rand_state);
+//__device__ Vec3 randomUnitVector(curandState *local_rand_state);
+//__device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_state);
+__device__ Vec3 reflect(const Vec3 &v, const Vec3 &n);
+__device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float eta_over_eta);
+//__device__ Vec3 randomInUnitDisk(curandState *local_rand_state);
+//__device__ Vec3 randomInUnitSphere(curandState *local_rand_state);
 
 inline std::ostream& operator<<(std::ostream &out, const Vec3 &v)
 {
