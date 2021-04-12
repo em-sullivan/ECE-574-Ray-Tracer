@@ -12,6 +12,15 @@
 
 struct hit_record;
 
+
+#define RANDVEC3 Vec3(curand_uniform(local_rand_state),curand_uniform(local_rand_state),curand_uniform(local_rand_state))
+
+__device__ Vec3 randomInUnitSphere(curandState *local_rand_state);
+
+__device__ Vec3 randomUnitVector(curandState *local_rand_state);
+
+__device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_state);
+
 class Material
 {
 public:
