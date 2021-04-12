@@ -45,13 +45,13 @@ __device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_ra
         Color attenuation;
 
         if(rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
-            cur_attenuation = attenuation*cur_attenuation;
+            cur_attenuation *= attenuation;
             cur_ray = scattered;
         } else {
-            return Color(0.0,0.0,0.0);
+            return Color(0.0,1.0,0.0);
         }
     }
-    return Color(0.0,0.0,0.0); // exceeded recursion
+    return Color(1.0,0.0,0.0); // exceeded recursion
 }
 
 /*
@@ -64,14 +64,16 @@ __device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_ra
         hit_record rec;
         
         if ((*world)->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
+            
             Ray scattered;
             Vec3 attenuation;
             if(rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
-                cur_attenuation = attenuation*cur_attenuation;
+                cur_attenuation *= attenuation;
                 cur_ray = scattered;
+                //return Vec3(1,0,0);
             }
             else {
-                return Vec3(0.0,0.0,0.0);
+                return Vec3(0.0,0.0,1.0);
             }
         }
         else {
@@ -81,7 +83,7 @@ __device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_ra
             return cur_attenuation * c;
         }
     }
-    return Vec3(0.0,0.0,0.0); // exceeded recursion
+    return Vec3(0,1,0); // exceeded recursion
 }
 */
 
@@ -124,13 +126,13 @@ __global__ void render(Vec3 *fb, int max_x, int max_y, int ns, Camera **cam, Hit
 __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
-        d_list[0] = new Sphere(Vec3(0,0,-1), 0.5, new Lambertian(Vec3(0.1, 0.2, 0.5)));
+        d_list[0] = new Sphere(Vec3(0,0,-1), 0.5, new Lambertian(new Solid_Color(Vec3(0.1, 0.2, 0.5))));
         d_list[1] = new Sphere(Vec3(0,-100.5,-1), 100, new Lambertian(Vec3(0.8, 0.8, 0.0)));
         d_list[2] = new Sphere(Vec3(1,0,-1), 0.5, new Metal(Vec3(0.8, 0.6, 0.2), 0.0));
         d_list[3] = new Sphere(Vec3(-1,0,-1), 0.5, new Dielectric(1.5));
         d_list[4] = new Sphere(Vec3(-1,0,-1), -0.45, new Dielectric(1.5));
         *d_world = new Hittable_List(d_list,5);
-        *d_camera   = new Camera(Point3(-2,2,1),Point3(0,0,-1),Vec3(0,1,0), 20.0f, float(nx)/float(ny), 0.1, 10.0, 0.0, 1.0);
+        *d_camera   = new Camera(Point3(-2,2,1),Point3(0,0,-1),Vec3(0,1,0), 20.0f, float(nx)/float(ny), 0, 10.0, 0.0, 1.0);
     }
 }
 
@@ -147,8 +149,8 @@ int main(int argc, char **argv)
 {
     /****** Set up image size, block size, and frame buffer ******/
     int nx = 1200;
-    int ny = 600;
-    int depth = 10;
+    int ny =600;
+    int depth = 50;
     int ns = 1;
     int tx = 8;
     int ty = 8;
@@ -228,10 +230,6 @@ int main(int argc, char **argv)
     for (int j = ny-1;  j >= 0;  j--) {
         for (int i = 0;  i < nx;  i++) {
            size_t pixel_index = j*nx + i;
-            //int ir = int(255.99*fb[pixel_index].x());
-            //int ig = int(255.99*fb[pixel_index].y());
-            //int ib = int(255.99*fb[pixel_index].z());
-            //std::cout << ir << " " << ig << " " << ib << "\n";
             writeColor(std::cout,fb[pixel_index]);
         }
     }
