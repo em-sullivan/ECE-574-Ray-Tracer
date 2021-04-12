@@ -4,6 +4,15 @@
 
 #include "Camera.h"
 
+__device__ Vec3 randomInUnitDisk(curandState *local_rand_state)
+{
+    Vec3 p;
+    do {
+        p = 2.0f*Vec3(curand_uniform(local_rand_state), curand_uniform(local_rand_state), 0) - Vec3(1,1,0);
+   } while (dot(p,p) >= 1.0f);
+   return p;
+}
+
 __device__ Camera::Camera(Point3 lookfrom, Point3 lookat, Vec3 vup, float vfov, float aspect_ratio,
     float aperture, float focus_dist, float _time0, float _time1)
 {
