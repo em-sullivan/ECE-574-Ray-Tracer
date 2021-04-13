@@ -8,7 +8,7 @@ OBJS = main.o Vec3.o Ray.o Color.o Sphere.o Hittable_List.o Material.o  Aabb.o T
 #NVCC_DBG       = -g -G
 NVCC_DBG       =
 
-NVCCFLAGS      = $(NVCC_DBG) -m64 -Xptxas -O3,-v -use_fast_math #--ftz=true --prec-div=false --prec-sqrt=false --fmad=true.
+NVCCFLAGS      = $(NVCC_DBG) -m64 -Xptxas -O3 -use_fast_math #--ftz=true --prec-div=false --prec-sqrt=false --fmad=true.
 
 # For RTX20 series, Turing
 GENCODE_FLAGS  = -gencode arch=compute_75,code=sm_75
@@ -24,11 +24,11 @@ create-image:
 	convert out.ppm out.jpg
 
 profile_basic: cudart
-	nvprof ./cudart
+	nvprof --unified-memory-profiling off ./cudart
 
 # use nvprof --query-metrics
 profile_metrics: cudart
-	nvprof --metrics achieved_occupancy,inst_executed,inst_fp_32,inst_fp_64,inst_integer ./cudart
+	nvprof --unified-memory-profiling off --metrics achieved_occupancy,inst_executed,inst_fp_32,inst_fp_64,inst_integer ./cudart
 
 clean:
 	rm -f cudart *.o *.ppm out.jpg *.elf *core
