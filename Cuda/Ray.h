@@ -19,16 +19,6 @@ public:
     __device__ Point3 origin() const;
     __device__ Vec3 direction() const;
     __device__ float time() const;
-
-
-    /*
-     * P(t) = A + t *b
-     * 
-     * P = 3D position along a line
-     * A = Origin
-     * B = Direction
-     * t = Ray
-     */
     __device__ Point3 at(float t) const;
 
 private:

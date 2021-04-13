@@ -9,7 +9,7 @@ __device__ Ray::Ray()
 {
     orig = Vec3(0, 0,0);
     dir = Vec3(0, 0,0);
-    tm = 0.0;
+    tm = 0.0f;
 }
 
 __device__ Ray::Ray(const Point3 &origin, const Vec3 &direction, float time)

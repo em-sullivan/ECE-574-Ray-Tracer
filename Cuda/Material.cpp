@@ -23,7 +23,7 @@ __device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_s
     Vec3 in_unit_sphere = randomInUnitSphere(local_rand_state);
 
     // In the same hemisphere as the normal
-    if (dot(in_unit_sphere, normal) > 0.0)
+    if (dot(in_unit_sphere, normal) > 0.0f)
         return in_unit_sphere;
     else
         return -in_unit_sphere;
@@ -107,32 +107,7 @@ __device__ Dielectric::Dielectric(float refraction_index)
 {
     refraction = refraction_index;
 }
-/*
-__device__ bool Dielectric::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const
-{
-    attenuation = Color(1.0, 1.0, 1.0);
-    float refraction_ratio = rec.front_face ? (1.0 / refraction) : refraction;
 
-    Vec3 unit_direction = unitVector(r_in.direction());
-
-    float cos_theta = fminf(dot(-unit_direction, rec.normal), 1.0f);
-    float sin_theta = sqrtf(1.0f - cos_theta * cos_theta);
-
-    // Determine if it can refract
-    bool cannot_refract = refraction_ratio * sin_theta > 1.0f;
-    Vec3 direction;
-
-    if (cannot_refract || reflectance(cos_theta, refraction_ratio) > curand_uniform(local_rand_state))
-        direction = reflect(unit_direction, rec.normal);
-    else
-        // Reflect if it can't refract
-        direction = refract(unit_direction, rec.normal, refraction_ratio);
-
-    scattered = Ray(rec.p, direction, r_in.time());
-
-    return true;
-}
-*/
 __device__ bool Dielectric::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const
   {
     Vec3 outward_normal;

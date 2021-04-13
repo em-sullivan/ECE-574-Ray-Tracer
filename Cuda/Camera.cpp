@@ -8,7 +8,7 @@ __device__ Vec3 randomInUnitDisk(curandState *local_rand_state)
 {
     Vec3 p;
     do {
-        p = 2.0f*Vec3(curand_uniform(local_rand_state), curand_uniform(local_rand_state), 0) - Vec3(1,1,0);
+        p = 2.0f*Vec3(curand_uniform(local_rand_state), curand_uniform(local_rand_state), 0.f) - Vec3(1,1,0);
    } while (dot(p,p) >= 1.0f);
    return p;
 }
@@ -16,10 +16,10 @@ __device__ Vec3 randomInUnitDisk(curandState *local_rand_state)
 __device__ Camera::Camera(Point3 lookfrom, Point3 lookat, Vec3 vup, float vfov, float aspect_ratio,
     float aperture, float focus_dist, float _time0, float _time1)
 {
-    auto theta = deg_to_rad(vfov);
-    auto h = tanf(theta / 2);
-    auto viewport_height = 2.0 * h;
-    auto viewport_width = aspect_ratio * viewport_height;
+    float theta = deg_to_rad(vfov);
+    float h = tanf(theta / 2.f);
+    float viewport_height = 2.0f * h;
+    float  viewport_width = aspect_ratio * viewport_height;
 
     w = unitVector(lookfrom - lookat);
     u = unitVector(cross(vup, w));
@@ -28,9 +28,9 @@ __device__ Camera::Camera(Point3 lookfrom, Point3 lookat, Vec3 vup, float vfov, 
     origin = lookfrom;
     horizontal = focus_dist * viewport_width * u;
     vertical = focus_dist * viewport_height * v;
-    lower_left_corner = origin - horizontal / 2 - vertical / 2 - focus_dist * w;
+    lower_left_corner = origin - horizontal / 2.f - vertical / 2.f - focus_dist * w;
 
-    lens_radius = aperture / 2;
+    lens_radius = aperture / 2.f;
     time0 = _time0;
     time1 = _time1;
 }
