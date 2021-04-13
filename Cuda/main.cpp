@@ -93,17 +93,17 @@ __global__ void render(Vec3 *fb, int max_x, int max_y, int ns, Camera **cam, Hit
     }
     rand_state[pixel_index] = local_rand_state;
     pixel_color /= float(ns);
-    pixel_color[0] = sqrtf(pixel_color[0]);
-    pixel_color[1] = sqrtf(pixel_color[1]);
-    pixel_color[2] = sqrtf(pixel_color[2]);
+    pixel_color[0] = sqrt(pixel_color[0]);
+    pixel_color[1] = sqrt(pixel_color[1]);
+    pixel_color[2] = sqrt(pixel_color[2]);
     fb[pixel_index] = pixel_color;
 }
-/*
+
 __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         d_list[0] = new Sphere(Vec3(0,0,-1), 0.5, new Lambertian(new Solid_Color(Vec3(0.1, 0.2, 0.5))));
-        d_list[1] = new Sphere(Vec3(0,-100.5,-1), 100, new Lambertian(Vec3(0.8, 0.8, 0.0)));
+        d_list[1] = new Sphere(Vec3(0,-100.5,-1), 100, new Lambertian(new Solid_Color(Vec3(0.8, 0.8, 0.0))));
         d_list[2] = new Sphere(Vec3(1,0,-1), 0.5, new Metal(Vec3(0.8, 0.6, 0.2), 0.0));
         d_list[3] = new Sphere(Vec3(-1,0,-1), 0.5, new Dielectric(1.5));
         d_list[4] = new Sphere(Vec3(-1,0,-1), -0.45, new Dielectric(1.5));
@@ -112,15 +112,7 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
     }
 }
 
-__global__ void free_world(Hittable **d_list, Hittable **d_world, Camera **d_camera) {
-    for(int i=0; i < 5; i++) {
-        delete ((Sphere *)d_list[i])->mat_ptr;
-        delete d_list[i];
-    }
-    delete *d_world;
-    delete *d_camera;
-}
-*/
+/*
 #define RND (curand_uniform(&local_rand_state))
 
 __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny, curandState *rand_state) {
@@ -159,9 +151,9 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
         *d_camera   = new Camera(lookfrom, lookat, Vec3(0,1,0), 20.0, float(nx)/float(ny), aperture, dist_to_focus, 0 ,1);
     }
 }
-
+*/
 __global__ void free_world(Hittable **d_list, Hittable **d_world, Camera **d_camera) {
-    for(int i=0; i < 22*22+1+3; i++) {
+    for(int i=0; i < 5; i++) {
         delete ((Sphere *)d_list[i])->mat_ptr;
         delete d_list[i];
     }
@@ -208,7 +200,7 @@ int main(int argc, char **argv)
 
     // make our world of hittables
     Hittable **d_list;
-    int numHittables = 22*22+1+3;
+    int numHittables = 5;
     checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *)));
 
     std::cerr << "Before world.\n";
@@ -220,7 +212,7 @@ int main(int argc, char **argv)
     checkCudaErrors(cudaMalloc((void **)&d_camera, sizeof(Camera *)));
 
     std::cerr << "Before create world.\n";
-    create_world<<<1,1>>>(d_list,d_world,d_camera, nx, ny, d_rand_state2);
+    create_world<<<1,1>>>(d_list,d_world,d_camera, nx, ny);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
