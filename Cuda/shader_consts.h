@@ -13,19 +13,19 @@
 
 // Constants
 //#define INF std::numeric_limits<float>::infinity()
-#define PI 3.1415926535897932385
+#define PI 3.1415926535897932385f
 
 // Utility function to convert degrees to rads
 __device__ inline float deg_to_rad(float degrees)
 {
-    return degrees * PI / 180.0;
+    return degrees * PI / 180.0f;
 }
 
 // Issue with rand() being on the CPU but needed on device, fix later
 __device__ inline float random_float(curandState *rand_state)
 {
     // Return a (pseduo) random float between 0.0 and 1.0
-    return curand_uniform(rand_state) / (RAND_MAX + 1.0);
+    return curand_uniform(rand_state) / (0x7fff + 1.0f);
 }
 
 __device__ inline float random_float(float min, float max, curandState *rand_state)
