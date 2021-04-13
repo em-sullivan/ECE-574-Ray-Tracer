@@ -14,6 +14,7 @@
 
  __device__ bool Sphere::hit(const Ray &r, float t_min, float t_max, hit_record &rec) const
 {
+    /*
     Vec3 oc = r.origin() - center;
     auto a = r.direction().lengthSquared();
     auto half_b = dot(oc, r.direction());
@@ -40,6 +41,31 @@
     get_sphere_uv(outward_normal, rec.u, rec.v);
     rec.mat_ptr = mat_ptr;
     return true;
+    */
+    Vec3 oc = r.origin() - center;
+    float a = dot(r.direction(), r.direction());
+    float b = dot(oc, r.direction());
+    float c = dot(oc, oc) - radius*radius;
+    float discriminant = b*b - a*c;
+    if (discriminant > 0.f) {
+        float temp = (-b - sqrt(discriminant))/a;
+    if (temp < t_max && temp > t_min) {
+      rec.t = temp;
+      rec.p = r.at(rec.t);
+      rec.normal = (rec.p - center) / radius;
+      rec.mat_ptr = mat_ptr;
+      return true;
+    }
+    temp = (-b + sqrt(discriminant)) / a;
+    if (temp < t_max && temp > t_min) {
+      rec.t = temp;
+      rec.p = r.at(rec.t);
+      rec.normal = (rec.p - center) / radius;
+      rec.mat_ptr = mat_ptr;
+      return true;
+    }
+  }
+  return false;
 }
 
  __device__ bool Sphere::bounding_box(float time0, float time1, Aabb &output_box) const
