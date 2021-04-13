@@ -21,6 +21,9 @@ __device__ Vec3 randomUnitVector(curandState *local_rand_state);
 
 __device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_state);
 
+__device__ Vec3 reflect(const Vec3 &v, const Vec3 &n);
+__device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float eta_over_eta);
+
 class Material
 {
 public:
@@ -32,11 +35,11 @@ class Lambertian : public Material
 {
 public:
     // Constructor
-    __device__ Lambertian(const Color &a) 
+   /* __device__ Lambertian(const Color &a) 
     {
         albedo = new Solid_Color (a);
     }
-
+*/
     __device__ Lambertian(Texture *a);
 
     __device__ virtual bool scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const override;
@@ -78,6 +81,7 @@ private:
     }*/
 };
 
+/*
 class Diffuse_Light : public Material
 {
 public:
@@ -108,7 +112,7 @@ public:
 private:
     Texture *albedo;
 };
-
+*/
 
 
 #endif // MATERIAL_H

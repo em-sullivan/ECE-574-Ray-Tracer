@@ -29,6 +29,19 @@ __device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_s
         return -in_unit_sphere;
 }
 
+__device__ Vec3 reflect(const Vec3 &v, const Vec3 &n)
+{
+    return v - 2.f*dot(v, n)*n;
+}
+
+__device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float etai_over_etat)
+{
+    float cos_theta = fminf(dot(-v1, v2), 1.0f);
+    Vec3 r_out_perp = etai_over_etat * (v1 + cos_theta * v2);
+    Vec3 r_out_parallel = -sqrtf(fabsf(1.0f - r_out_perp.lengthSquared())) * v2;
+    return r_out_perp + r_out_parallel;
+}
+
 __device__ bool Material::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const
 {
     // Generic implementation - does nothing
@@ -40,11 +53,6 @@ __device__ Color Material::emitted(float u, float v, const Point3& p) const
     return Color(0,0,0);
 }
 
-//Lambertian::Lambertian(const Color &a)
-//{
-//    albedo = make_shared<Solid_Color>(a);
-//}
-
 __device__ Lambertian::Lambertian(Texture *a)
 {
     albedo = a;
@@ -52,16 +60,18 @@ __device__ Lambertian::Lambertian(Texture *a)
 
 __device__  bool Lambertian::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const
 {
-    auto scatter_dir = rec.normal + randomUnitVector(local_rand_state);
-    //auto scatter_dir = randomInHemisphere(rec.normal, local_rand_state);
-
+   // auto scatter_dir = rec.normal + randomUnitVector(local_rand_state);
     // Catch degenerate scatter direction
-    if (scatter_dir.nearZero())
-        scatter_dir = rec.normal;
+    //if (scatter_dir.nearZero())
+      //  scatter_dir = rec.normal;
 
-    scattered = Ray(rec.p, scatter_dir, r_in.time());
+    //scattered = Ray(rec.p, scatter_dir, r_in.time());
     //attenuation = albedo;
-    attenuation = albedo->value(rec.u, rec.v, rec.p);
+    //attenuation = albedo->value(rec.u, rec.v, rec.p);
+    //return true;
+    Vec3 target = rec.p + rec.normal + randomInUnitSphere(local_rand_state);
+    scattered = Ray(rec.p, target-rec.p, r_in.time());
+    attenuation = albedo->value(0, 0, rec.p);
     return true;
 }
 
@@ -91,14 +101,14 @@ __device__ bool Dielectric::scatter(const Ray &r_in, hit_record &rec, Color &att
 
     Vec3 unit_direction = unitVector(r_in.direction());
 
-    float cos_theta = fminf(dot(-unit_direction, rec.normal), 1.0);
-    float sin_theta = sqrtf(1.0 - cos_theta * cos_theta);
+    float cos_theta = fminf(dot(-unit_direction, rec.normal), 1.0f);
+    float sin_theta = sqrtf(1.0f - cos_theta * cos_theta);
 
     // Determine if it can refract
-    bool cannot_refract = refraction_ratio * sin_theta > 1.0;
+    bool cannot_refract = refraction_ratio * sin_theta > 1.0f;
     Vec3 direction;
 
-    if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_float(local_rand_state))
+    if (cannot_refract || reflectance(cos_theta, refraction_ratio) > curand_uniform(local_rand_state))
         direction = reflect(unit_direction, rec.normal);
     else
         // Reflect if it can't refract
@@ -109,15 +119,15 @@ __device__ bool Dielectric::scatter(const Ray &r_in, hit_record &rec, Color &att
     return true;
 }
 
-
 __device__ float Dielectric::reflectance(float cosine, float ref)
 {
     // Use Sclick's approximation for reflectance
-    float r0 = (1 - ref) / (1 + ref);
+    float r0 = (1.f - ref) / (1.f + ref);
     r0 *= r0;
-    return r0 + (1 - r0) * powf((1 - cosine), 5);
+    return r0 + (1.f - r0) * powf((1.f - cosine), 5.f);
 }
 
+/*
 __device__ bool Diffuse_Light::scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered, curandState *local_rand_state) const
 {
     return false;
@@ -134,3 +144,4 @@ __device__ bool Isotropic::scatter(const Ray& r_in, hit_record& rec, Color& atte
     attenuation = albedo->value(rec.u, rec.v, rec.p);
     return true;
 }
+*/
