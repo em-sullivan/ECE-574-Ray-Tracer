@@ -13,7 +13,7 @@ public:
 
     // Constructors
     __device__ Ray();
-    __device__ Ray(const Point3 &origin, const Point3 &direction, float time = 0.0);
+    __device__ Ray(const Point3 &origin, const Point3 &direction, float time = 0.0f);
 
     // Getters
     __device__ Point3 origin() const;
