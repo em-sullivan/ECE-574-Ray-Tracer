@@ -39,5 +39,6 @@ __device__ Ray Camera::get_ray(float s, float t, curandState *local_rand_state)
 {
     Vec3 rd = lens_radius * randomInUnitDisk(local_rand_state);
     Vec3 offset = u * rd.x() + v * rd.y();
-    return Ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, random_float(time0, time1, local_rand_state));
+    float time = time0 + curand_uniform(local_rand_state)*(time1-time0);
+    return Ray(origin + offset, lower_left_corner + s *horizontal + t *vertical - origin - offset, time);
 }

@@ -14,7 +14,7 @@ class Camera
 {
 public:
     __device__ Camera(Point3 lookfrom, Point3 lookat, Vec3 vup, float vfov, float aspect_ratio,
-        float aperture, float focus_dist, float _time0 = 0, float _time1 = 0);
+        float aperture, float focus_dist, float _time0 = 0.f, float _time1 = 0.f);
     __device__ Ray get_ray(float u, float v, curandState *local_rand_state);
 
 private:
