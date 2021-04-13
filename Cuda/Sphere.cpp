@@ -44,10 +44,7 @@
 
  __device__ bool Sphere::bounding_box(float time0, float time1, Aabb &output_box) const
 {
-    output_box = Aabb(
-        center - Vec3(radius, radius, radius),
-        center + Vec3(radius, radius, radius)
-    );
+    output_box = Aabb(center - Vec3(radius, radius, radius), center + Vec3(radius, radius, radius));
 
     return true;
 }
@@ -60,8 +57,8 @@
      * v - return value [0, 1] of angle from y=-1 tp y=1
      */
 
-    auto theta = acosf(-p.y());
-    auto phi = atan2f(-p.z(), p.x()) + PI;
+    float theta = acosf(-p.y());
+    float phi = atan2f(-p.z(), p.x()) + PI;
 
     u = phi / (2 * PI);
     v = theta / PI;
