@@ -34,12 +34,26 @@ __device__ Vec3 reflect(const Vec3 &v, const Vec3 &n)
     return v - 2.f*dot(v, n)*n;
 }
 
+/*
 __device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float etai_over_etat)
 {
     float cos_theta = fminf(dot(-v1, v2), 1.0f);
     Vec3 r_out_perp = etai_over_etat * (v1 + cos_theta * v2);
     Vec3 r_out_parallel = -sqrtf(fabsf(1.0f - r_out_perp.lengthSquared())) * v2;
     return r_out_perp + r_out_parallel;
+}
+*/
+
+__device__ bool refract(const Vec3& v, const Vec3& n, float ni_over_nt, Vec3& refracted) {
+  Vec3 uv = unitVector(v);
+  float dt = dot(uv, n);
+  float discriminant = 1.0f - ni_over_nt*ni_over_nt*(1-dt*dt);
+  if (discriminant > 0.f) {
+    refracted = ni_over_nt*(uv - n*dt) - n*sqrtf(discriminant);
+    return true;
+  }
+  else
+    return false;
 }
 
 __device__ bool Material::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const
@@ -78,7 +92,7 @@ __device__  bool Lambertian::scatter(const Ray &r_in, hit_record &rec, Color &at
 __device__ Metal::Metal(const Color &a, float in_fuzz)
 {
     albedo = a;
-    fuzz = in_fuzz < 1 ? in_fuzz : 1;
+    fuzz = in_fuzz < 1.f ? in_fuzz : 1.f;
 }
 
 __device__ bool Metal::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const
@@ -93,7 +107,7 @@ __device__ Dielectric::Dielectric(float refraction_index)
 {
     refraction = refraction_index;
 }
-
+/*
 __device__ bool Dielectric::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const
 {
     attenuation = Color(1.0, 1.0, 1.0);
@@ -118,6 +132,38 @@ __device__ bool Dielectric::scatter(const Ray &r_in, hit_record &rec, Color &att
 
     return true;
 }
+*/
+__device__ bool Dielectric::scatter(const Ray &r_in, hit_record &rec, Color &attenuation, Ray &scattered, curandState *local_rand_state) const
+  {
+    Vec3 outward_normal;
+    float refraction_ratio = refraction;
+    Vec3 reflected = reflect(r_in.direction(), rec.normal); //ONLY REFLECT
+    float ni_over_nt;
+    attenuation = Vec3(1.0, 1.0, 1.0);
+    Vec3 refracted;
+    float reflect_prob;
+    float cosine;
+    if (dot(r_in.direction(), rec.normal) > 0.0f) {
+      outward_normal = -rec.normal;
+      ni_over_nt = refraction_ratio;
+      cosine = dot(r_in.direction(), rec.normal) / r_in.direction().length();
+      cosine = sqrtf(1.0f - refraction_ratio*refraction_ratio*(1.f-cosine*cosine));
+    }
+    else {
+      outward_normal = rec.normal;
+      ni_over_nt = 1.0f / refraction_ratio;
+      cosine = -dot(r_in.direction(), rec.normal) / r_in.direction().length();
+    }
+    if (refract(r_in.direction(), outward_normal, ni_over_nt, refracted)) //ONLY REFRACT
+      reflect_prob = reflectance(cosine, refraction_ratio); //REFLECTANCE CALL
+    else
+      reflect_prob = 1.0f;
+    if (curand_uniform(local_rand_state) < reflect_prob)
+      scattered = Ray(rec.p, reflected, r_in.time());
+    else
+      scattered = Ray(rec.p, refracted, r_in.time());
+    return true;
+  }
 
 __device__ float Dielectric::reflectance(float cosine, float ref)
 {
