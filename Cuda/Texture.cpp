@@ -3,7 +3,6 @@
  * Makes colors on surfaces procedural
  */
 
-#include "shader_stb_image.h"
 #include "Texture.h"
 
 /*
@@ -43,13 +42,14 @@ __device__  Checkered::Checkered(Color c1, Color c2)
 
 __device__  Color Checkered::value(float u, float v, const Point3 &p) const
 {
-    auto sines = sin(10 * p.x()) * sin(10 * p.y()) * sin(10 * p.z());
-    if (sines < 0)
+    float sines = sinf(10.f * p.x()) * sinf(10.f * p.y()) * sinf(10.f * p.z());
+    if (sines < 0.f)
         return odd_tiles->value(u, v, p);
     else
         return even_tiles->value(u, v, p);
 }
 
+/*
 __device__  Noise_Text::Noise_Text()
 {
     scale = 1.0;
@@ -121,3 +121,4 @@ __device__  Color Image_Text::value(float u, float v, const Point3 &p) const
 
     return Color(color_scale * pixel[0], color_scale * pixel[1], color_scale * pixel[2]);
 }
+*/

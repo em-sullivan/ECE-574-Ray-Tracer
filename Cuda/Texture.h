@@ -8,12 +8,7 @@
 #include <iostream>
 #include "Vec3.h"
 #include "Ray.h"
-#include "Perlin.h"
 #include "shader_consts.h"
-//#include "shader_stb_image.h"
-//#define STB_IMAGE_IMPLEMENTATION
-//#include "stb_image.h"
-
 
 class Texture
 {
@@ -62,10 +57,8 @@ private:
 
 };
 
-/*
- * Noise - Perlin noise texture
- */
 
+/*
 class Noise_Text : public Texture
 {
 public:
@@ -81,10 +74,6 @@ private:
     float scale;
 
 };
-
-/*
- * Image texture
- */
 
 class Image_Text : public Texture
 {
@@ -103,5 +92,5 @@ private:
     int bytes_per_scaneline;
 
 };
-
+*/
 #endif //TEXTURE_H
