@@ -24,8 +24,6 @@ public:
     Point3 center;
     float radius;
     Material *mat_ptr;
-    __device__ static void get_sphere_uv(Point3 &p, float &u, float &v);
-
 };
 
 #endif // SPHERE_H
