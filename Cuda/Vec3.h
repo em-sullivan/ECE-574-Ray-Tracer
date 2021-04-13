@@ -55,8 +55,8 @@ private:
 // Utility Functions
 //__device__ Vec3 randomUnitVector(curandState *local_rand_state);
 //__device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_state);
-__device__ Vec3 reflect(const Vec3 &v, const Vec3 &n);
-__device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float eta_over_eta);
+//__device__ Vec3 reflect(const Vec3 &v, const Vec3 &n);
+//__device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float eta_over_eta);
 //__device__ Vec3 randomInUnitDisk(curandState *local_rand_state);
 //__device__ Vec3 randomInUnitSphere(curandState *local_rand_state);
 

@@ -130,18 +130,7 @@ __device__ Vec3 randomInHemisphere(const Vec3 &normal, curandState *local_rand_s
         return -in_unit_sphere;
 }
 */
-__device__ Vec3 reflect(const Vec3 &v, const Vec3 &n)
-{
-    return v - 2 * dot(v, n) * n;
-}
 
-__device__ Vec3 refract(const Vec3 &v1, const Vec3 &v2, float etai_over_etat)
-{
-    float cos_theta = fminf(dot(-v1, v2), 1.0);
-    Vec3 r_out_perp = etai_over_etat * (v1 + cos_theta * v2);
-    Vec3 r_out_parallel = -sqrtf(fabsf(1.0 - r_out_perp.lengthSquared())) * v2;
-    return r_out_perp + r_out_parallel;
-}
 /*
 __device__ Vec3 randomInUnitDisk(curandState *local_rand_state)
 {
