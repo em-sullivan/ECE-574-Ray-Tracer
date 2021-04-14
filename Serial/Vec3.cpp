@@ -112,7 +112,7 @@ bool Vec3::nearZero() const
 {
     // Return true if the vector is close to zero in all dimensions
     const float s = 1e-8;
-    return (fabs(coords[0]) < s) && fabs(coords[1] < s) && fabs(coords[2] < 2);
+    return (fabs(coords[0]) < s) && fabs(coords[1] < s) && fabs(coords[2] < s);
 }
 
 Vec3 randomUnitVector()
