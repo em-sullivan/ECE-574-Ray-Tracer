@@ -4,6 +4,11 @@
 
 #include "Camera.h"
 
+Camera::Camera()
+{
+    
+}
+
 Camera::Camera(Point3 lookfrom, Point3 lookat, Vec3 vup, float vfov, float aspect_ratio,
     float aperture, float focus_dist, float _time0, float _time1)
 {
