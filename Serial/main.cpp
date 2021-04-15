@@ -8,17 +8,6 @@
 #include <string>
 #include <chrono>
 #include "shader_consts.h"
-#include "Hittable_List.h"
-#include "Sphere.h"
-#include "Camera.h"
-#include "Material.h"
-#include "Moving_Sphere.h"
-#include "Perlin.h"
-#include "Aarect.h"
-#include "Box.h"
-#include "Translate.h"
-#include "Constant_Medium.h"
-#include "Bvh_Node.h"
 #include "render.h"
 #include "worlds.h"
 
@@ -126,10 +115,6 @@ int main(int argc, char **argv)
     // Output File
     std::fstream file;
     file.open("out.ppm", std::ios::out);
-    //std::streambuf *ppm_out = file.rdbuf();
-
-    // Redirect Cout
-    //std::cout.rdbuf(ppm_out);
     
     // Render
     auto render_time_start = high_resolution_clock::now();

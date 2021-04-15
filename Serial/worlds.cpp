@@ -63,7 +63,6 @@ Camera random_balls_cam(float aspect_ratio)
     Point3 lookfrom = Point3(13, 2, 3);
     Point3 lookat = Point3(0, 0, 0);
     Point3 vup = Vec3(0, 1, 0);
-    Color background = Color(0.70, 0.80, 1.00);
     float fov = 20;
     float dist_to_focus = 10.0;
     float aperture = .1;
@@ -102,7 +101,6 @@ Camera three_balls_cam(float aspect_ratio)
     Point3 lookfrom = Point3(0, 0, 5);
     Point3 lookat = Point3(0, 0, -1);
     Point3 vup = Vec3(0, 1, 0);
-    Color background = Color(0.70, 0.80, 1.00);
     float fov = 20;
     float dist_to_focus = (lookfrom-lookat).length();
     float aperture = 0;
@@ -127,7 +125,6 @@ Camera two_bit_balls_cam(float aspect_ratio)
     Point3 lookfrom = Point3(13, 2, 3);
     Point3 lookat = Point3(0, 0, 0);
     Point3 vup = Vec3(0, 1, 0);
-    Color background = Color(0.70, 0.80, 1.00);
     float fov = 20;
     float dist_to_focus = 10.0;
     float aperture = 0;
@@ -151,7 +148,6 @@ Camera two_fuzzy_balls_cam(float aspect_ratio)
     auto lookfrom = Point3(13, 2, 3);
     auto lookat = Point3(0, 0, 0);
     auto vup = Vec3(0, 1, 0);
-    auto background = Color(0.70, 0.80, 1.00);
     float fov = 20;
     float dist_to_focus = 10.0;
     float aperture = 0;
@@ -174,7 +170,6 @@ Camera earf_cam(float aspect_ratio)
     auto lookfrom = Point3(13, 2, 3);
     auto lookat = Point3(0, 0, 0);
     auto vup = Vec3(0, 1, 0);
-    auto background = Color(0.70, 0.80, 1.00);
     float fov = 20;
     float dist_to_focus = 10.0;
     float aperture = 0;
@@ -202,7 +197,6 @@ Camera simple_light_cam(float aspect_ratio)
     auto lookfrom = Point3(26, 3, 6);
     auto lookat = Point3(0, 2, 0);
     auto vup = Vec3(0, 1, 0);
-    auto background = Color(0, 0, 0);
     float fov = 20;
     float dist_to_focus = 10.0;
     float aperture = 0;
