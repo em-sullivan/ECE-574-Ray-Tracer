@@ -6,3 +6,6 @@
 cudart
 .vscode/settings.json
 *.json
+*.exe
+*.exp
+*.lib
