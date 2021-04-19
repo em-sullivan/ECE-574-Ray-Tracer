@@ -54,7 +54,7 @@ __device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_ra
            // float t = 0.5f * (unit_direction.y() + 1.0f);
            // Vec3 c = (1.0f - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0);
            // background
-           return emitted + cur_attenuation * Color(.7, .3, .5);
+           return emitted + cur_attenuation * Color(0, 0, 0);
         }
     }
     return Vec3(0.0, 0.0, 0.0); // exceeded recursion
@@ -141,13 +141,13 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
         }
 
         d_list[i++] = new Sphere(Vec3(-4, 1,0),  1.0, new Dielectric(1.5));
-        d_list[i++] = new Sphere(Vec3(0, 1, 0), 1.0, new Lambertian(new Solid_Color(Vec3(0.4, 0.2, 0.1))));
+        //d_list[i++] = new Sphere(Vec3(-4, 1, 0), 1.0, new Lambertian(new Solid_Color(Vec3(0.4, 0.2, 0.1))));
         //d_list[i++] = new Sphere(Vec3(0, 1, 0), 1.0 , new Lambertian(new Image_Text(tex_data, tex_nx, tex_ny)));
         d_list[i++] =  new Sphere(Vec3(0, 4, 5),  1.0, new Diffuse_Light( new Solid_Color(Vec3(7, 7, 7))));
         d_list[i++] = new Sphere(Vec3(4, 1, 0),  1.0, new Metal(Vec3(0.7, 0.6, 0.5), 0.0));
 
         *rand_state = local_rand_state;
-        *d_world  = new Hittable_List(d_list, 22*22+1+4);
+        *d_world  = new Hittable_List(d_list, 22*22+1+3);
 
         Vec3 lookfrom = Vec3(13,2,3);
         Vec3 lookat = Vec3(0,0,0);
@@ -158,7 +158,7 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
 }
 
 __global__ void free_world(Hittable **d_list, Hittable **d_world, Camera **d_camera) {
-    for(int i=0; i < 22*22+1+4; i++) {
+    for(int i=0; i < 22*22+1+3; i++) {
         delete ((Sphere *)d_list[i])->mat_ptr;
         delete d_list[i];
     }
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
     int nx = 2400;
     int ny = 1600;
     int depth = 50;
-    int ns = 1000;
+    int ns = 2000;
     int tx = 8;
     int ty = 8;
 
@@ -234,7 +234,7 @@ int main(int argc, char **argv)
 
     // make our world of hittables
     Hittable **d_list;
-    int numHittables = 22*22+1+4;
+    int numHittables = 22*22+1+3;
     checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *)));
 
     Hittable **d_world;
