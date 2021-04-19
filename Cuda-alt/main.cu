@@ -130,7 +130,7 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
                     }
                 }
             }
-            
+
         *rand_state = local_rand_state;
         *d_world  = new Hittable_List(d_list, 11+45*56);
 
@@ -161,7 +161,7 @@ int main(int argc, char **argv)
     //int nx = 1920;
     //int ny = 1080;
     int depth = 50;
-    int ns = 10000;
+    int ns = 1000;
     int tx = 8;
     int ty = 8;
 

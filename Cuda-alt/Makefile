@@ -34,4 +34,4 @@ profile_metrics: cudart
 	nvprof --unified-memory-profiling off --metrics achieved_occupancy,inst_executed,inst_fp_32,inst_fp_64,inst_integer ./cudart
 
 clean:
-	rm -f *.o *.ppm out.jpg *.elf *core *.obj *.lib *.exe *.exp
+	rm -f *.o *.ppm *.elf *core *.obj *.lib *.exe *.exp
