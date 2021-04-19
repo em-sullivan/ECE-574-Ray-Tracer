@@ -9,6 +9,14 @@
 #include "Vec3.h"
 //#include "Material.h"
 #include "Texture.h"
+#include "shader_consts.h"
+
+__device__ void get_sphere_uv(const Vec3& p, float& u, float& v) {
+    float phi = atan2f(p.z(), p.x());
+    float theta = asinf(p.y());
+    u = 1.f-(phi + PI) / (2.f*PI);
+    v = (theta + PI/2.f) / PI;
+}
 
 class Sphere : public Hittable 
 {
@@ -45,6 +53,7 @@ __device__ Sphere::Sphere(Point3 cen, float r, Material *m)
     if (temp < t_max && temp > t_min) {
       rec.t = temp;
       rec.p = r.at(rec.t);
+      get_sphere_uv((rec.p-center)/radius, rec.u, rec.v); //new
       rec.normal = (rec.p - center) / radius;
       rec.mat_ptr = mat_ptr;
       return true;
@@ -53,6 +62,7 @@ __device__ Sphere::Sphere(Point3 cen, float r, Material *m)
     if (temp < t_max && temp > t_min) {
       rec.t = temp;
       rec.p = r.at(rec.t);
+      get_sphere_uv((rec.p-center)/radius, rec.u, rec.v);
       rec.normal = (rec.p - center) / radius;
       rec.mat_ptr = mat_ptr;
       return true;
