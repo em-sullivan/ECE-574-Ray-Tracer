@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <float.h>
 #include <curand_kernel.h>
@@ -13,6 +15,8 @@
 #include "Camera.h"
 #include "Texture.h"
 //#include "Material.h"
+
+#include "shader_stb_image.h"
 
 // limited version of checkCudaErrors from helper_cuda.h in CUDA examples
 #define checkCudaErrors(val) check_cuda( (val), #val, __FILE__, __LINE__ )
@@ -32,6 +36,7 @@ __device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_ra
 {
     Ray cur_ray = r;
     Vec3 cur_attenuation = Color(1.0, 1.0, 1.0);
+    Color emitted;
 
     for (int i = 0; i < depth; i++) {
         hit_record rec;
@@ -39,15 +44,17 @@ __device__ Color ray_color(const Ray& r, Hittable **world, curandState *local_ra
         if ((*world)->hit(cur_ray, 0.001f, FLT_MAX, rec)) {
             Ray scattered;
             Vec3 attenuation;
+            emitted = rec.mat_ptr->emitted(rec.u,rec.v, rec.p);
             if (rec.mat_ptr->scatter(cur_ray, rec, attenuation, scattered, local_rand_state)) {
                 cur_attenuation *= attenuation;
                 cur_ray = scattered;
-            } else return Vec3(0.0, 0.0, 0.0);
+            } else return emitted*cur_attenuation;
         } else {
-            Vec3 unit_direction = unitVector(cur_ray.direction());
-            float t = 0.5f * (unit_direction.y() + 1.0f);
-            Vec3 c = (1.0f - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0);
-            return cur_attenuation * c;
+           // Vec3 unit_direction = unitVector(cur_ray.direction());
+           // float t = 0.5f * (unit_direction.y() + 1.0f);
+           // Vec3 c = (1.0f - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0);
+           // background
+           return emitted + cur_attenuation * Color(.7, .3, .5);
         }
     }
     return Vec3(0.0, 0.0, 0.0); // exceeded recursion
@@ -67,8 +74,8 @@ __global__ void render_init(int max_x, int max_y, curandState *rand_state)
     if((i >= max_x) || (j >= max_y)) return;
     int pixel_index = j*max_x + i;
     //Each thread gets same seed, a different sequence number, no offset
-    curand_init(1984, pixel_index, 0,  &rand_state[pixel_index]);
-   // curand_init(1984+pixel_index, 0, 0, &rand_state[pixel_index]);
+    //curand_init(1984, pixel_index, 0,  &rand_state[pixel_index]);
+    curand_init(1984+pixel_index, 0, 0, &rand_state[pixel_index]);
 }
 
 __global__ void render(Vec3 *fb, int max_x, int max_y, int ns, Camera **cam, Hittable **world, curandState *rand_state, int depth)
@@ -111,10 +118,11 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
 
 #define RND (curand_uniform(&local_rand_state))
 
-__global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny, curandState *rand_state) {
+__global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny, curandState *rand_state, int tex_nx, int tex_ny, unsigned char *tex_data) {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         curandState local_rand_state = *rand_state;
-        d_list[0] = new Sphere(Vec3(0,-1000.0,-1), 1000, new Lambertian(new Solid_Color(Vec3(0.5, 0.5, 0.5))));
+        Texture *checker = new Checkered( new Solid_Color(Vec3(0.2,0.3, 0.1)), new Solid_Color(Vec3(0.3, 0.1, 0.2)));
+        d_list[0] = new Sphere(Vec3(0,-1000.0,-1), 1000, new Lambertian(checker));
         int i = 1;
         for(int a = -11; a < 11; a++) {
             for(int b = -11; b < 11; b++) {
@@ -131,11 +139,15 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
                 }
             }
         }
-        d_list[i++] = new Sphere(Vec3(0, 1,0),  1.0, new Dielectric(1.5));
-        d_list[i++] = new Sphere(Vec3(-4, 1, 0), 1.0, new Lambertian(new Solid_Color(Vec3(0.4, 0.2, 0.1))));
+
+        d_list[i++] = new Sphere(Vec3(-4, 1,0),  1.0, new Dielectric(1.5));
+        d_list[i++] = new Sphere(Vec3(0, 1, 0), 1.0, new Lambertian(new Solid_Color(Vec3(0.4, 0.2, 0.1))));
+        //d_list[i++] = new Sphere(Vec3(0, 1, 0), 1.0 , new Lambertian(new Image_Text(tex_data, tex_nx, tex_ny)));
+        d_list[i++] =  new Sphere(Vec3(0, 4, 5),  1.0, new Diffuse_Light( new Solid_Color(Vec3(7, 7, 7))));
         d_list[i++] = new Sphere(Vec3(4, 1, 0),  1.0, new Metal(Vec3(0.7, 0.6, 0.5), 0.0));
+
         *rand_state = local_rand_state;
-        *d_world  = new Hittable_List(d_list, 22*22+1+3);
+        *d_world  = new Hittable_List(d_list, 22*22+1+4);
 
         Vec3 lookfrom = Vec3(13,2,3);
         Vec3 lookat = Vec3(0,0,0);
@@ -146,24 +158,57 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
 }
 
 __global__ void free_world(Hittable **d_list, Hittable **d_world, Camera **d_camera) {
-    for(int i=0; i < 22*22+1+3; i++) {
+    for(int i=0; i < 22*22+1+4; i++) {
         delete ((Sphere *)d_list[i])->mat_ptr;
         delete d_list[i];
     }
     delete *d_world;
     delete *d_camera;
 }
+/*
+void fuck(unsigned char *pixels, int height, int width)
+{
+    std::cout << "P3\n" << width << " " << height << "\n255\n";
 
+    for (int j = height - 1; j>= 0; j--) {
+        for (int i = 0; i < width; i+=3) {
+            for( int k = 0; k < 3; k++) {
+                std::cout << static_cast<int>(pixels[j * width + i*k]) << " ";
+        }
+        << std:endl;
+    }
+}
+*/
 int main(int argc, char **argv)
 {
     /****** Set up image size, block size, and frame buffer ******/
-    int nx = 800;
-    int ny = 800;
+    int nx = 2400;
+    int ny = 1600;
     int depth = 50;
-    int ns = 20;
+    int ns = 1000;
     int tx = 8;
     int ty = 8;
-    
+
+    int tex_nx, tex_ny, tex_nn;
+    unsigned char *tex_data = stbi_load("textures/earthmap.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+    unsigned char *dev_tex_data;
+
+    size_t amt = tex_nx * tex_ny * tex_nn;
+    unsigned char *test_data = (unsigned char *)malloc(sizeof(unsigned char) * amt);
+    for (int i = 0; (i+3) < amt; i+=3) {
+        test_data[i] = 243;
+        test_data[i+1] = 243;
+        test_data[i+2] = 1;
+    }
+
+    checkCudaErrors(cudaMallocManaged((void **)&dev_tex_data, tex_nx*tex_ny*tex_nn*sizeof(unsigned char)));
+    cudaMemcpy(dev_tex_data, tex_data, tex_nx *tex_ny*tex_nn*sizeof(unsigned char), cudaMemcpyHostToDevice);
+    checkCudaErrors(cudaDeviceSynchronize());
+    //dev_tex_data = tex_data;
+    //unsigned char *dev_tex_data;
+    //checkCudaErrors(cudaMalloc((void **)&dev_tex_data,tex_nx*tex_ny*sizeof(unsigned char)));
+    //cudaMemcpy(dev_tex_data, tex_data, tex_nx * tex_ny*sizeof(unsigned char), cudaMemcpyHostToDevice);
+
 
     std::cerr << "Rendering a " << nx << "x" << ny << " image with " << ns << " samples per pixel ";
     std::cerr << "in " << tx << "x" << ty << " blocks.\n";
@@ -174,8 +219,6 @@ int main(int argc, char **argv)
     // allocate frame buffer (unified memory)
     Vec3 *fb;
     checkCudaErrors(cudaMallocManaged((void **)&fb, fb_size));
-
-      std::cerr << "Before rand.\n";
 
     // allocate random state
     curandState *d_rand_state;
@@ -189,23 +232,18 @@ int main(int argc, char **argv)
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-      std::cerr << "Before list.\n";
-
     // make our world of hittables
     Hittable **d_list;
-    int numHittables = 22*22+1+3;
+    int numHittables = 22*22+1+4;
     checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *)));
 
-    std::cerr << "Before world.\n";
     Hittable **d_world;
     checkCudaErrors(cudaMalloc((void **)&d_world, sizeof(Hittable *)));
 
-    std::cerr << "Before camera.\n";
     Camera **d_camera;
     checkCudaErrors(cudaMalloc((void **)&d_camera, sizeof(Camera *)));
 
-    std::cerr << "Before create world.\n";
-    create_world<<<1,1>>>(d_list,d_world,d_camera, nx, ny, d_rand_state2);
+    create_world<<<1,1>>>(d_list,d_world,d_camera, nx, ny, d_rand_state2, tex_nx, tex_ny, dev_tex_data);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -216,23 +254,22 @@ int main(int argc, char **argv)
     // Render our buffer
     dim3 blocks(nx/tx+1,ny/ty+1);
     dim3 threads(tx,ty);
-    std::cerr << "Before Render Init.\n";
 
     render_init<<<blocks, threads>>>(nx, ny, d_rand_state);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-      std::cerr << "Before Render.\n";
+      std::cerr << "Starting Render.\n";
 
     render<<<blocks, threads>>>(fb, nx, ny,  ns, d_camera, d_world, d_rand_state, depth);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
     
-     std::cerr << "After Render.\n";
+     std::cerr << "Render Finished.\n";
 
     stop = clock();
     double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
-    std::cout << "took " << timer_seconds << " seconds.\n";
+    std::cout << "Render took " << timer_seconds << " seconds.\n";
 
 
     // Output File
@@ -251,6 +288,7 @@ int main(int argc, char **argv)
             writeColor(std::cout,fb[pixel_index]);
         }
     }
+    //fuck(tex_data, tex_ny, tex_nx);
 
     // clean up
     checkCudaErrors(cudaDeviceSynchronize());
@@ -262,8 +300,9 @@ int main(int argc, char **argv)
     checkCudaErrors(cudaFree(d_rand_state));
     checkCudaErrors(cudaFree(d_rand_state2));
     checkCudaErrors(cudaFree(fb));
+    checkCudaErrors(cudaFree(dev_tex_data));
 
-    std::cerr << "\nDone" << std::endl;
+    std::cerr << "Done" << std::endl;
     file.close();
 
     // useful for cuda-memcheck --leak-check full
