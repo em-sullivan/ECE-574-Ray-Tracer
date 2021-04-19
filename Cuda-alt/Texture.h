@@ -102,52 +102,69 @@ __device__  Color Checkered::value(float u, float v, const Point3 &p) const
 }
 
 /*
-__device__  Noise_Text::Noise_Text()
+class Noise_Text : public Texture
 {
-    scale = 1.0;
-}
-
-__device__  Noise_Text::Noise_Text(float sc)
-{
-    scale = sc;
-}
-
-__device__  Color Noise_Text::value(float u, float v, const Point3 &p) const
-{
+public:
+    // Constructor
+    __device__  Noise_Text()
+    {
+        scale = 1.0f;
+    }
+    __device__  Noise_Text(float sc)
+    {
+        scale = sc;
+    }
+    // Color value
+    __device__  virtual Color value(float u, float v, const Point3 &p) const override
+    {
     // Generator noise
     // return Color(1, 1, 1) * noise.turb(p * scale);
     // Comments out straight noise, igves a marbel like effect
-    return Color(1, 1, 1) * 0.5 * (1 + sin(scale * p.z() + 10 * noise.turb(p)));
-}
-
-__host__  Image_Text::Image_Text()
-{
-    data = nullptr;
-    width = 0;
-    height = 0;
-    bytes_per_scaneline = 0;
-}
-
-__host__ Image_Text::Image_Text(const char *filename)
-{
-    auto components_per_pixel = bytes_per_pixel;
-
-    // Load texture data from image, stored in unsighend char array
-    data = stbi_load(filename, &width, &height, 
-        &components_per_pixel, components_per_pixel);
-
-    if (!data) {
-        std::cerr << "Error! Could not texture for image  " << filename << std::endl;
-        width = 0;
-        height = 0;
+        return Color(1, 1, 1) * 0.5f * (1.f + sinf(scale * p.z() + 10.f * noise.turb(p)));
     }
 
+private:
+    Perlin noise;
+    float scale;
+
+};
+*/
+class Image_Text : public Texture
+{
+public: 
+    const static int bytes_per_pixel = 3;
+
+    __device__ Image_Text();
+    __device__ Image_Text(unsigned char *pixels, int A, int B);
+
+    __device__  ~Image_Text();
+
+    __device__  virtual Color value(float u, float v, const Point3 &p) const override;
+
+private:
+    unsigned char *data;
+    int width, height;
+    int bytes_per_scaneline;
+};
+
+__device__ Image_Text::Image_Text(unsigned char *pixels, int A, int B)
+{
+    data = pixels;
+    width = A;
+    height = B;
     bytes_per_scaneline = bytes_per_pixel * width;
 }
 
-__host__  Image_Text::~Image_Text()
+__device__  Image_Text::~Image_Text()
 {
     delete data;
+}
+
+__device__ inline float clamp_t(float x, float min, float max)
+{
+    if (x < min) return min;
+    if (x > max) return max;
+    return x;
 }
 
 __device__  Color Image_Text::value(float u, float v, const Point3 &p) const
@@ -157,9 +174,9 @@ __device__  Color Image_Text::value(float u, float v, const Point3 &p) const
         return Color(0, 1, 1);
 
     // Clamp input text cordinate to [0, 1] x [1, 0]
-    u = clamp(u, 0.0, 1);
+    u = clamp_t(u, 0.0, 1);
     // Flip V to image coordinates
-    v = 1.0 - clamp(v, 0.0, 1.0); 
+    v = 1.0f - clamp_t(v, 0.0, 1.0); 
 
     auto i = static_cast<int>(u * width);
     auto j = static_cast<int>(v * height);
@@ -168,46 +185,41 @@ __device__  Color Image_Text::value(float u, float v, const Point3 &p) const
     if (i >= width) i = width - 1;
     if (j >= height) j = height - 1;
 
-    const auto color_scale = 1.0 / 255.0;
+    const auto color_scale = 1.0f / 255.0f;
     auto pixel = data + j * bytes_per_scaneline + i * bytes_per_pixel;
 
     return Color(color_scale * pixel[0], color_scale * pixel[1], color_scale * pixel[2]);
 }
-*/
 
 /*
-class Noise_Text : public Texture
-{
-public:
-    // Constructor
-    __device__  Noise_Text();
-    __device__  Noise_Text(float sc);
-
-    // Color value
-    __device__  virtual Color value(float u, float v, const Point3 &p) const override;
-
-private:
-    Perlin noise;
-    float scale;
-
+class image_texture : public Texture {
+    public:
+    __device__ image_texture() {}
+    __device__ image_texture(unsigned char *pixels, int A, int B) : data(pixels), nx(A), ny(B) {}
+    __device__ virtual Vec3 value(float u, float v, const Vec3& p) const;
+        unsigned char *data;
+        int nx, ny;
 };
 
-class Image_Text : public Texture
-{
-public: 
-    const static int bytes_per_pixel = 3;
 
-    __host__ Image_Text();
-    __host__ Image_Text(const char *filename);
-    __host__  ~Image_Text();
 
-    __device__  virtual Color value(float u, float v, const Point3 &p) const override;
+__device__ Vec3 image_texture::value(float u, float v, const Vec3& p) const {
+        if (data == nullptr)
+        return Color(1, 0, 1);
 
-private:
-    unsigned char *data;
-    int width, height;
-    int bytes_per_scaneline;
-
-};
+    
+     int i = (  u)*nx;
+     int j = (1-v)*ny-0.001f;
+     if (i < 0) i = 0;
+     if (j < 0) j = 0;
+     if (i > nx-1) i = nx-1;
+     if (j > ny-1) j = ny-1;
+     float r = int(data[3*i + 3*nx*j]  ) / 255.0f;
+     float g = int(data[3*i + 3*nx*j+1]) / 255.0f;
+     float b = int(data[3*i + 3*nx*j+2]) / 255.0f;
+     return Vec3(r, g, b);
+}
 */
+
+
 #endif //TEXTURE_H
