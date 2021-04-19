@@ -187,6 +187,29 @@ private:
     float refraction;
 };
 
+class Diffuse_Light : public Material
+{
+public:
+    __device__ Diffuse_Light(Texture *a) : emit(a) {}
+    __device__ Diffuse_Light(Color c)
+    {
+        emit = new Solid_Color (c);
+    }
+
+ __device__ virtual bool scatter(const Ray& r_in, hit_record& rec, Color& attenuation, Ray& scattered) const override
+ {
+     return false;
+}
+
+__device__ virtual Color emitted(float u, float v, const Point3& p) const override 
+{
+    return emit->value(u, v, p);
+}
+
+private:
+    Texture *emit;
+};
+
 
 
 #endif // MATERIAL_H
