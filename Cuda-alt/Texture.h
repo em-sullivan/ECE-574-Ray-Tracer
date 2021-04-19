@@ -8,6 +8,7 @@
 #include <iostream>
 #include "Vec3.h"
 #include "Ray.h"
+#include "Perlin.h"
 #include "shader_consts.h"
 
 class Texture
@@ -101,7 +102,7 @@ __device__  Color Checkered::value(float u, float v, const Point3 &p) const
         return even_tiles->value(u, v, p);
 }
 
-/*
+
 class Noise_Text : public Texture
 {
 public:
@@ -110,9 +111,10 @@ public:
     {
         scale = 1.0f;
     }
-    __device__  Noise_Text(float sc)
+    __device__  Noise_Text(float sc, curandState *local_rand_state)
     {
         scale = sc;
+        noise = Perlin(local_rand_state);
     }
     // Color value
     __device__  virtual Color value(float u, float v, const Point3 &p) const override
@@ -128,85 +130,22 @@ private:
     float scale;
 
 };
-*/
-class Image_Text : public Texture
-{
-public: 
-    const static int bytes_per_pixel = 3;
 
-    __device__ Image_Text();
-    __device__ Image_Text(unsigned char *pixels, int A, int B);
-
-    __device__  ~Image_Text();
-
-    __device__  virtual Color value(float u, float v, const Point3 &p) const override;
-
-private:
-    unsigned char *data;
-    int width, height;
-    int bytes_per_scaneline;
-};
-
-__device__ Image_Text::Image_Text(unsigned char *pixels, int A, int B)
-{
-    data = pixels;
-    width = A;
-    height = B;
-    bytes_per_scaneline = bytes_per_pixel * width;
-}
-
-__device__  Image_Text::~Image_Text()
-{
-    delete data;
-}
-
-__device__ inline float clamp_t(float x, float min, float max)
-{
-    if (x < min) return min;
-    if (x > max) return max;
-    return x;
-}
-
-__device__  Color Image_Text::value(float u, float v, const Point3 &p) const
-{
-    // No text data, return cyan for debugging
-    if (data == nullptr)
-        return Color(0, 1, 1);
-
-    // Clamp input text cordinate to [0, 1] x [1, 0]
-    u = clamp_t(u, 0.0, 1);
-    // Flip V to image coordinates
-    v = 1.0f - clamp_t(v, 0.0, 1.0); 
-
-    auto i = static_cast<int>(u * width);
-    auto j = static_cast<int>(v * height);
-
-    // Clamp integer mapping, actual coordinates should be less than 1.0
-    if (i >= width) i = width - 1;
-    if (j >= height) j = height - 1;
-
-    const auto color_scale = 1.0f / 255.0f;
-    auto pixel = data + j * bytes_per_scaneline + i * bytes_per_pixel;
-
-    return Color(color_scale * pixel[0], color_scale * pixel[1], color_scale * pixel[2]);
-}
-
-/*
-class image_texture : public Texture {
+class Image_Text : public Texture {
     public:
-    __device__ image_texture() {}
-    __device__ image_texture(unsigned char *pixels, int A, int B) : data(pixels), nx(A), ny(B) {}
-    __device__ virtual Vec3 value(float u, float v, const Vec3& p) const;
+    __device__ Image_Text() {}
+    __device__ Image_Text(unsigned char *pixels, int A, int B) : data(pixels), nx(A), ny(B) {}
+    __device__ virtual Vec3 value(float u, float v, const Vec3& p) const override;
+    private:
         unsigned char *data;
         int nx, ny;
 };
 
 
 
-__device__ Vec3 image_texture::value(float u, float v, const Vec3& p) const {
+__device__ Vec3 Image_Text::value(float u, float v, const Vec3& p) const {
         if (data == nullptr)
         return Color(1, 0, 1);
-
     
      int i = (  u)*nx;
      int j = (1-v)*ny-0.001f;
@@ -214,12 +153,10 @@ __device__ Vec3 image_texture::value(float u, float v, const Vec3& p) const {
      if (j < 0) j = 0;
      if (i > nx-1) i = nx-1;
      if (j > ny-1) j = ny-1;
-     float r = int(data[3*i + 3*nx*j]  ) / 255.0f;
+     float r = int(data[3*i + 3*nx*j] ) / 255.0f;
      float g = int(data[3*i + 3*nx*j+1]) / 255.0f;
      float b = int(data[3*i + 3*nx*j+2]) / 255.0f;
      return Vec3(r, g, b);
 }
-*/
-
 
 #endif //TEXTURE_H
