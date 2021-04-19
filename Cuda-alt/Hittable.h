@@ -119,11 +119,10 @@ class Lambertian : public Material
 {
 public:
     // Constructor
-   /* __device__ Lambertian(const Color &a) 
+   __device__ Lambertian(const Color &a) 
     {
         albedo = new Solid_Color (a);
     }
-*/
     __device__ Lambertian(Texture *a)
     {
         albedo = a;
@@ -133,7 +132,7 @@ public:
     {
         Vec3 target = rec.p + rec.normal + randomInUnitSphere(local_rand_state);
         scattered = Ray(rec.p, target-rec.p, r_in.time());
-        attenuation = albedo->value(0, 0, rec.p);
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;
 
     }
