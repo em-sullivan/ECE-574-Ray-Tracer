@@ -362,6 +362,12 @@ Hittable_List solar_system()
 {
     Hittable_List world;
 
+    // Star colors
+    auto star1 = make_shared<Solid_Color>(Color(1, 1, 1)); // White
+    auto star2 = make_shared<Solid_Color>(Color(0.75, 0.6, 0.5)); // Yellow
+    auto star3 = make_shared<Solid_Color>(Color(0.93, 0.41, 0.24)); // Red
+    auto star4 = make_shared<Solid_Color>(Color(0.4, 0.82, 0.95)); // Blue
+
     // Create Sun and slightly bigger light source
     auto sun_texture = make_shared<Image_Text>("textures/sun.jpg");
     auto sun_surface = make_shared<Diffuse_Light>(sun_texture);
@@ -397,7 +403,39 @@ Hittable_List solar_system()
     world.add(make_shared<Sphere>(Point3(0, 0, 575), 2.75,
         make_shared<Lambertian>(make_shared<Image_Text>("textures/pluto.jpg"))));
 
-    // Still need to randomly generate stars
+    // Generate random stars in the background
+    for (int a = -450; a < 450; a+=20) {
+        for (int c = -20; c < 1100; c+=20) {
+            float star_color = random_float();
+
+            float rand1 = random_float();
+            rand1 *= (20.f + 0.999999f);
+            rand1 = truncf(rand1);
+
+            float rand2 = random_float();
+            rand2 *= (20.f + 0.999999f);
+            rand2 = truncf(rand2);
+
+            float rand3 = random_float();
+            rand3 *= (20.f + 0.999999f);
+            rand3 = truncf(rand3);
+
+            Vec3 center(250 + rand1 + (800 - c), a + rand2, c + rand3);
+             if (star_color < 0.7f) {
+                world.add(make_shared<Sphere>(center, random_float(), 
+                    make_shared<Diffuse_Light>(star1)));
+            } else if  (star_color < 0.9f) {
+                world.add(make_shared<Sphere>(center, random_float(), 
+                    make_shared<Diffuse_Light>(star2)));
+            } else if  (star_color < 0.95f) {
+                world.add(make_shared<Sphere>(center, random_float(), 
+                    make_shared<Diffuse_Light>(star3)));
+            } else {
+                world.add(make_shared<Sphere>(center, random_float(), 
+                    make_shared<Diffuse_Light>(star4)));
+            }
+        }
+    }
     return world;
 }
 

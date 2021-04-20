@@ -1,6 +1,5 @@
 CC = cl.exe
 LINK = link.exe
-CCFLAGS = /EHsc /o2
 CPPFLAGS = /EHsc /O2
 LDFLAGS = 
 OBJS = main.obj Color.obj Vec3.obj Ray.obj Sphere.obj Hittable_List.obj Camera.obj Material.obj Moving_Sphere.obj Bvh_Node.obj Aabb.obj Texture.obj Perlin.obj Aarect.obj Box.obj Translate.obj Constant_Medium.obj render.obj worlds.obj
