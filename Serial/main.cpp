@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     // Image
     float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int samples_per_pixel = 1000;
+    int samples_per_pixel = 100;
     int max_depth = 50;
     int image_height;
 
@@ -108,6 +108,12 @@ int main(int argc, char **argv)
         case 9:
             world = solar_system();
             cam = solar_system_cam(aspect_ratio);
+            background = Color(0, 0, 0);
+            break;
+
+        case 10:
+            world = glow_balls();
+            cam = glow_balls_cam(aspect_ratio);
             background = Color(0, 0, 0);
     }
 

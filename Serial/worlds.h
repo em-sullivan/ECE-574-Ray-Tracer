@@ -50,5 +50,8 @@ Camera final_scene_cam(float aspect_ratio);
 Hittable_List solar_system();
 Camera solar_system_cam(float aspect_ratio);
 
+Hittable_List glow_balls();
+Camera glow_balls_cam(float aspect_ratio);
+
 
 #endif // WORLDS_H
