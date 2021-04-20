@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     // Image
     float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int samples_per_pixel = 20;
+    int samples_per_pixel = 1000;
     int max_depth = 50;
     int image_height;
 
@@ -104,6 +104,11 @@ int main(int argc, char **argv)
             cam = final_scene_cam(aspect_ratio);
             background = Color(0,0,0);
             break;
+
+        case 9:
+            world = solar_system();
+            cam = solar_system_cam(aspect_ratio);
+            background = Color(0, 0, 0);
     }
 
     // Image height based on aspect ratio

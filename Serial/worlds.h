@@ -47,4 +47,8 @@ Camera cornell_smoke_cam(float aspect_ratio);
 Hittable_List final_scene();
 Camera final_scene_cam(float aspect_ratio);
 
+Hittable_List solar_system();
+Camera solar_system_cam(float aspect_ratio);
+
+
 #endif // WORLDS_H

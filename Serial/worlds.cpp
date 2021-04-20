@@ -357,3 +357,58 @@ Camera final_scene_cam(float aspect_ratio)
 
     return Camera(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 }
+
+Hittable_List solar_system()
+{
+    Hittable_List world;
+
+    // Create Sun and slightly bigger light source
+    auto sun_texture = make_shared<Image_Text>("textures/sun.jpg");
+    auto sun_surface = make_shared<Diffuse_Light>(sun_texture);
+    world.add(make_shared<Sphere>(Point3(0, 0, -320), 300.0, sun_surface));
+    auto light = make_shared<Diffuse_Light>(Color(4, 4, 4));
+    world.add(make_shared<Sphere>(Point3(0, 0, -1300), 600.0, light));
+
+    // Create each planet in line
+    world.add(make_shared<Sphere>(Point3(0, 0, -10), 2,
+        make_shared<Lambertian>(make_shared<Image_Text>("textures/mercury.jpg"))));
+    
+    world.add(make_shared<Sphere>(Point3(0, 0, 0), 3.6,
+        make_shared<Lambertian>(make_shared<Image_Text>("textures/venus.jpg"))));
+
+    world.add(make_shared<Sphere>(Point3(0, 0, 13), 4.4,
+        make_shared<Lambertian>(make_shared<Image_Text>("textures/earth.jpg"))));
+
+    world.add(make_shared<Sphere>(Point3(0, 0, 27), 2.4,
+        make_shared<Lambertian>(make_shared<Image_Text>("textures/mars.jpg"))));
+
+    world.add(make_shared<Sphere>(Point3(0, 0, 80), 34.4,
+        make_shared<Lambertian>(make_shared<Image_Text>("textures/jupiter.jpg"))));
+
+    world.add(make_shared<Sphere>(Point3(0, 0, 190), 28.0,
+        make_shared<Lambertian>(make_shared<Image_Text>("textures/saturn.jpg"))));
+
+    world.add(make_shared<Sphere>(Point3(0, 0, 310), 16.4,
+        make_shared<Lambertian>(make_shared<Image_Text>("textures/uranus.jpg"))));
+
+    world.add(make_shared<Sphere>(Point3(0, 0, 450), 16.0,
+        make_shared<Lambertian>(make_shared<Image_Text>("textures/neptune.jpg"))));
+    
+    world.add(make_shared<Sphere>(Point3(0, 0, 575), 2.75,
+        make_shared<Lambertian>(make_shared<Image_Text>("textures/pluto.jpg"))));
+
+    // Still need to randomly generate stars
+    return world;
+}
+
+Camera solar_system_cam(float aspect_ratio)
+{
+    auto lookfrom = Point3(-145, 0, -25);
+    auto lookat = Point3(-110, 0, 5);
+    auto vup = Vec3(0, 1, 0);
+    float fov = 52.0;
+    float dist_to_focus = 100.0;
+    float aperture = 0.1;
+
+    return Camera(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+}
