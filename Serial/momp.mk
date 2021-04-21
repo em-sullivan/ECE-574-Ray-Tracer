@@ -16,7 +16,7 @@ main.o: main.cpp
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 create-image:
-	./rayer-tracer.elf $(N)
+	./rayer-tracer.elf $(N) $(W) $(H) $(S)
 	convert out.ppm out.jpg
 
 clean:
