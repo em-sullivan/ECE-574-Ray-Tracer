@@ -18,9 +18,6 @@ int main(int argc, char **argv)
 {
     auto program_start = high_resolution_clock::now();
 
-    // Image
-    //float aspect_ratio = 16.0f / 9.0f;
-    float aspect_ratio;
     int max_depth = 50;
     int image_width;
     int samples_per_pixel;
@@ -39,10 +36,11 @@ int main(int argc, char **argv)
         samples_per_pixel = atoi(argv[4]);
     }
 
-    aspect_ratio = float(image_width)/ (float(image_height));
+    float aspect_ratio = float(image_width)/ (float(image_height));
 
 
     auto create_time_start = high_resolution_clock::now();
+    
     // World
     Hittable_List world;
     Camera cam;
@@ -94,7 +92,6 @@ int main(int argc, char **argv)
         case 6:
             world = cornell_box();
             aspect_ratio = 1.0;
-            image_width = 300;
             image_height = static_cast<int>(image_width / aspect_ratio);
             cam = cornell_box_cam(aspect_ratio);
             background = Color(0, 0, 0);
@@ -103,7 +100,6 @@ int main(int argc, char **argv)
         case 7:
             world = cornell_smoke();
             aspect_ratio = 1.0;
-            image_width = 300;
             image_height = static_cast<int>(image_width / aspect_ratio);
             cam = cornell_smoke_cam(aspect_ratio);
             background = Color(0, 0, 0);
@@ -113,7 +109,6 @@ int main(int argc, char **argv)
         case 8:
             world = final_scene();
             aspect_ratio = 1.0;
-            image_width = 400;
             image_height = static_cast<int>(image_width / aspect_ratio);
             cam = final_scene_cam(aspect_ratio);
             background = Color(0,0,0);
@@ -130,9 +125,6 @@ int main(int argc, char **argv)
             cam = glow_balls_cam(aspect_ratio);
             background = Color(0, 0, 0);
     }
-
-    // Image height based on aspect ratio
-    //image_height = static_cast<int>(image_width / aspect_ratio);
 
     // Render output variable
     Vec3 *image_pixels = new Vec3[image_height * image_width * sizeof(Vec3)];
