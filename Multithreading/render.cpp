@@ -57,13 +57,14 @@ void render(Color *image, int height, int width, int spp, int depth,
     Ray r;
     float u, v;
 
-#pragma omp parallel shared(image, height, width, spp, depth, cam, world, background) private(j, i, s, pixel_color, r, u, v)
+// #pragma omp parallel shared(image, height, width, spp, depth, cam, world, background) private(j, i, s, pixel_color, r, u, v)
+#pragma omp parallel shared(image, height, width, spp, depth, cam, world, background) private(j, i, s, pixel_color, r, u, v) num_threads(2)
 {
 
     #pragma omp for schedule(static) nowait
     for (j = height - 1; j >= 0; j--) {
-        //std::cerr << "\rScaneline remaing: " << j << ' ' << std::flush;
-
+        std::cerr << "\rScaneline remaing: " << j << ' ' << std::flush;
+        // #pragma omp for schedule(dynamic) nowait
         for (i = 0; i < width; i++) {
             pixel_color = Color(0, 0, 0);
             for (s = 0; s < spp; s++) {
