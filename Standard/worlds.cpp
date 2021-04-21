@@ -368,7 +368,7 @@ Hittable_List solar_system()
     auto star4 = make_shared<Solid_Color>(Color(0.4, 0.82, 0.95)); // Blue
 
     // Create Sun and slightly bigger light source
-    auto sun_texture = make_shared<Image_Text>("../Common/textures/sun.jpg");
+    auto sun_texture = make_shared<Image_Text>("../Common/textures/sunHQ.jpg");
     auto sun_surface = make_shared<Diffuse_Light>(sun_texture);
     world.add(make_shared<Sphere>(Point3(0, 0, -320), 300.0, sun_surface));
     auto light = make_shared<Diffuse_Light>(Color(4, 4, 4));
@@ -388,10 +388,10 @@ Hittable_List solar_system()
         make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/mars.jpg"))));
 
     world.add(make_shared<Sphere>(Point3(0, 0, 80), 34.4,
-        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/jupiter.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/jupiterHQ.jpg"))));
 
     world.add(make_shared<Sphere>(Point3(0, 0, 190), 28.0,
-        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/saturn.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/saturnHQ.jpg"))));
 
     world.add(make_shared<Sphere>(Point3(0, 0, 310), 16.4,
         make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/uranus.jpg"))));
