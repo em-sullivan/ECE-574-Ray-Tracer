@@ -15,6 +15,8 @@ using namespace std::chrono;
 
 int main(int argc, char **argv)
 {
+    auto program_start = high_resolution_clock::now();
+
     int image;
     if (argc < 2) {
         image = 0;
@@ -22,16 +24,15 @@ int main(int argc, char **argv)
         std::stringstream str_to_int(argv[1]);
         str_to_int >> image;
     }
-
-    auto program_start = high_resolution_clock::now();
     
     // Image
     float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int samples_per_pixel = 500;
+    int samples_per_pixel = 5;
     int max_depth = 50;
     int image_height;
 
+    auto create_time_start = high_resolution_clock::now();
     // World
     Hittable_List world;
     Camera cam;
@@ -123,6 +124,8 @@ int main(int argc, char **argv)
     // Render output variable
     Vec3 *image_pixels = new Vec3[image_height * image_width * sizeof(Vec3)];
 
+    auto create_time_end = high_resolution_clock::now();
+
     // Output File
     std::fstream file;
     file.open("out.ppm", std::ios::out);
@@ -140,22 +143,27 @@ int main(int argc, char **argv)
 
     delete image_pixels;
 
-    std::cerr << "\nDone" << std::endl;
+    std::cerr << "\nRender complete and image saved." << std::endl;
     file.close();
 
     // Print timing of program
     // Total Time
     auto program_end = high_resolution_clock::now();
-    auto time = duration_cast<milliseconds>(program_end - program_start);
-    std::cout << "Time :" << time.count() << "ms" << std::endl;
+
+    // Creation Time
+    auto create_time = duration_cast<milliseconds>(create_time_end - create_time_start);
+    std::cout << "World Creation Time: " << create_time.count() << "ms" << std::endl;
 
     // Render Time
     auto render_time = duration_cast<milliseconds>(render_time_end - render_time_start);
-    std::cout << "Render time : " << render_time.count() << "ms" << std::endl;
+    std::cout << "Render Time: " << render_time.count() << "ms" << std::endl;
 
     // Save image time
     auto save_time = duration_cast<milliseconds>(save_time_end - save_time_start);
-    std::cout << "Image save time " << save_time.count() << "ms" << std::endl;
+    std::cout << "Image Save Time: " << save_time.count() << "ms" << std::endl;
+
+    auto time = duration_cast<milliseconds>(program_end - program_start);
+    std::cout << "Total Time: " << time.count() << "ms" << std::endl;
 
     return 0;
 }
