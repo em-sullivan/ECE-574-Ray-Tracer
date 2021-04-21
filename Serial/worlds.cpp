@@ -459,8 +459,8 @@ Hittable_List glow_balls()
     auto ground_material = make_shared<Lambertian>(Color(0.5, 0.5, 0.5));
     world.add(make_shared<Sphere>(Point3(0, -1000, 0), 1000, ground_material));
 
-    for (int a = -11; a < 11; a++) {
-        for (int b = -11; b < 11; b++) {
+    for (int a = -8; a < 8; a++) {
+        for (int b = -8; b < 8; b++) {
 
             // "Randomly" choose material and point
             auto choose_mat = random_float();
@@ -468,47 +468,36 @@ Hittable_List glow_balls()
 
             if ((center - Point3(4, 0.2, 0)).length() > 0.9) {
                 shared_ptr<Material> sphere_material;
+                // Glow ball
+                auto albedo = Color::random() * Color::random();
+                albedo[1] = 0;
+                sphere_material = make_shared<Diffuse_Light>(albedo);
 
-                if (choose_mat < 0.8) {
-                    // Glow ball
-                    auto albedo = Color::random() * Color::random();
-                    sphere_material = make_shared<Diffuse_Light>(albedo);
-                    world.add(make_shared<Sphere>(center, 0.2, sphere_material));
-                } else if (choose_mat < 0.95) {
-                    // Metal ball
-                    auto albedo = Color::random(0.5, 1);
-                    auto fuzz = random_float(0, 0.5);
-                    sphere_material = make_shared<Metal>(albedo, fuzz);
+                if (choose_mat < .5) {
                     world.add(make_shared<Sphere>(center, 0.2, sphere_material));
                 } else {
-                    // Glass ball
-                    sphere_material = make_shared<Dielectric>(1.5);
-                    world.add(make_shared<Sphere>(center, 0.2, sphere_material));
+                    world.add(make_shared<Moving_Sphere>(center, 
+                        center + Point3(0, 0, random_float()),
+                        0.0, 1.0, 0.2, sphere_material));
                 }
             }
 
         }
     }
 
-    // Add some big chonking balls
+    // Big old mirror ball
     auto ball1 =make_shared<Dielectric>(1.5);
-    world.add(make_shared<Sphere>(Point3(0, 1, 0), 1.0, ball1));
-
-    auto ball2 = make_shared<Metal>(Color(0.4, 0.2, 0.1), 0.0);
-    world.add(make_shared<Sphere>(Point3(-4, 1, 0), 1.0, ball2));
-
-    auto ball3 = make_shared<Metal>(Color(0.7, 0.6, 0.5), 0.0);
-    world.add(make_shared<Sphere>(Point3(4, 1, 0), 1.0, ball3));
-
+    world.add(make_shared<Sphere>(Point3(4, 1, 1.5), 1.0, ball1));
+    
     return world;
 }
 
 Camera glow_balls_cam(float aspect_ratio)
 {
-    Point3 lookfrom = Point3(13, 2, 3);
+    Point3 lookfrom = Point3(13, 2, 5);
     Point3 lookat = Point3(0, 0, 0);
     Point3 vup = Vec3(0, 1, 0);
-    float fov = 20;
+    float fov = 25;
     float dist_to_focus = 10.0;
     float aperture = .1;
 

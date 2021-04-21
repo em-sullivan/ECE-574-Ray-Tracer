@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     // Image
     float aspect_ratio = 16.0f / 9.0f;
     int image_width = 400;
-    int samples_per_pixel = 20;
+    int samples_per_pixel = 500;
     int max_depth = 50;
     int image_height;
 
