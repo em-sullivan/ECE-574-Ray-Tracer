@@ -2,10 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <stdio.h>
-#include <stdlib.h>
 #include <chrono>
-#include <float.h>
 #include <curand_kernel.h>
 #include "Vec3.h"
 #include "Color.h"
