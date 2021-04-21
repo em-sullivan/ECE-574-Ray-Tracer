@@ -31,7 +31,7 @@ public:
 //private:
     Point3 center;
     float radius;
-    Material *mat_ptr;
+    //Material *mat_ptr;
 };
 
 __device__ Sphere::Sphere(Point3 cen, float r, Material *m)
