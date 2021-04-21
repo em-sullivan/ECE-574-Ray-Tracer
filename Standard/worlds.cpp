@@ -155,10 +155,9 @@ Camera two_fuzzy_balls_cam(float aspect_ratio)
     return Camera(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 }
 
-
 Hittable_List earf()
 {
-    auto earf_texture = make_shared<Image_Text>("textures/earthmap.jpg");
+    auto earf_texture = make_shared<Image_Text>("../Common/textures/earthmap.jpg");
     auto earf_surface = make_shared<Lambertian>(earf_texture);
     auto globe = make_shared<Sphere>(Point3(0, 0, 0), 2, earf_surface);
 
@@ -369,7 +368,7 @@ Hittable_List solar_system()
     auto star4 = make_shared<Solid_Color>(Color(0.4, 0.82, 0.95)); // Blue
 
     // Create Sun and slightly bigger light source
-    auto sun_texture = make_shared<Image_Text>("textures/sun.jpg");
+    auto sun_texture = make_shared<Image_Text>("../Common/textures/sun.jpg");
     auto sun_surface = make_shared<Diffuse_Light>(sun_texture);
     world.add(make_shared<Sphere>(Point3(0, 0, -320), 300.0, sun_surface));
     auto light = make_shared<Diffuse_Light>(Color(4, 4, 4));
@@ -377,31 +376,31 @@ Hittable_List solar_system()
 
     // Create each planet in line
     world.add(make_shared<Sphere>(Point3(0, 0, -10), 2,
-        make_shared<Lambertian>(make_shared<Image_Text>("textures/mercury.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/mercury.jpg"))));
     
     world.add(make_shared<Sphere>(Point3(0, 0, 0), 3.6,
-        make_shared<Lambertian>(make_shared<Image_Text>("textures/venus.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/venus.jpg"))));
 
     world.add(make_shared<Sphere>(Point3(0, 0, 13), 4.4,
-        make_shared<Lambertian>(make_shared<Image_Text>("textures/earth.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/earth.jpg"))));
 
     world.add(make_shared<Sphere>(Point3(0, 0, 27), 2.4,
-        make_shared<Lambertian>(make_shared<Image_Text>("textures/mars.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/mars.jpg"))));
 
     world.add(make_shared<Sphere>(Point3(0, 0, 80), 34.4,
-        make_shared<Lambertian>(make_shared<Image_Text>("textures/jupiter.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/jupiter.jpg"))));
 
     world.add(make_shared<Sphere>(Point3(0, 0, 190), 28.0,
-        make_shared<Lambertian>(make_shared<Image_Text>("textures/saturn.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/saturn.jpg"))));
 
     world.add(make_shared<Sphere>(Point3(0, 0, 310), 16.4,
-        make_shared<Lambertian>(make_shared<Image_Text>("textures/uranus.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/uranus.jpg"))));
 
     world.add(make_shared<Sphere>(Point3(0, 0, 450), 16.0,
-        make_shared<Lambertian>(make_shared<Image_Text>("textures/neptune.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/neptune.jpg"))));
     
     world.add(make_shared<Sphere>(Point3(0, 0, 575), 2.75,
-        make_shared<Lambertian>(make_shared<Image_Text>("textures/pluto.jpg"))));
+        make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/pluto.jpg"))));
 
     // Generate random stars in the background
     for (int a = -450; a < 450; a+=20) {
