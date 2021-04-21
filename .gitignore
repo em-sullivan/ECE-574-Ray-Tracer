@@ -9,3 +9,4 @@ cudart
 *.exe
 *.exp
 *.lib
+*.obj
