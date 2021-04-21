@@ -1,6 +1,3 @@
-# Winodws command to run the code:
-# NOTE: make a makefile for windows
-# nvcc.exe  -m64 -Xptxas -O3 -use_fast_math -gencode arch=compute_50,code=sm_50 main.cu -o rayer-tracer -I../Common/include
 CUDA_PATH     ?= /usr/local/cuda
 HOST_COMPILER  = g++
 NVCC           = $(CUDA_PATH)/bin/nvcc -ccbin $(HOST_COMPILER)
@@ -34,4 +31,4 @@ profile_metrics: cudart
 	nvprof --unified-memory-profiling off --metrics achieved_occupancy,inst_executed,inst_fp_32,inst_fp_64,inst_integer ./cudart
 
 clean:
-	rm -f *.o *.ppm *.elf *core *.obj *.lib *.exe *.exp
+	rm -f cudart *.o *.ppm out.jpg *.elf *core
