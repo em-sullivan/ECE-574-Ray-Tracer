@@ -4,7 +4,7 @@
 #include <string>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+#include <chrono>
 #include <float.h>
 #include <curand_kernel.h>
 #include "Vec3.h"
@@ -17,6 +17,8 @@
 #include "Render.h"
 
 #include "shader_stb_image.h"
+
+using namespace std::chrono;
 
 #define RND (curand_uniform(&local_rand_state))
 
@@ -155,19 +157,23 @@ __global__ void free_world(Hittable **d_list, Hittable **d_world, Camera **d_cam
 
 int main(int argc, char **argv)
 {
+    auto program_start = high_resolution_clock::now();
+
     /****** Set up image size, block size, and frame buffer ******/
     int nx = 3840;
     int ny = 2160;
     //int nx = 1920;
     //int ny = 1080;
     int depth = 50;
-    int ns = 1000;
+    int ns = 100;
     int tx = 8;
     int ty = 8;
 
     /****** Allocate and copy memory for any image textures ******/
     int tex_nx, tex_ny, tex_nn;
     int texHQ_nx, texHQ_ny, texHQ_nn;
+
+    auto texture_time_start = high_resolution_clock::now();
 
     /******  Standard quality textures ******/
     unsigned char *mercury = stbi_load("textures/mercury.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
@@ -226,9 +232,13 @@ int main(int argc, char **argv)
     checkCudaErrors(cudaMallocManaged((void **)&dev_background, sizeof(Color)));
     checkCudaErrors(cudaMemcpy(dev_background, &background, sizeof(Color), cudaMemcpyHostToDevice));
 
+    auto texture_time_end = high_resolution_clock::now();
+
 
     std::cerr << "Rendering a " << nx << "x" << ny << " image with " << ns << " samples per pixel ";
     std::cerr << "in " << tx << "x" << ty << " blocks.\n";
+
+    auto create_time_start = high_resolution_clock::now();
 
     int num_pixels = nx*ny;
     size_t fb_size = num_pixels*sizeof(Vec3);
@@ -245,8 +255,6 @@ int main(int argc, char **argv)
     checkCudaErrors(cudaMalloc((void **)&d_rand_state2, 1*sizeof(curandState)));
 
     /****** Render and time frame buffer ******/
-    clock_t start, stop;
-    start = clock();
     
     // we need that 2nd random state to be initialized for the world creation
     rand_init<<<1,1>>>(d_rand_state2);
@@ -278,35 +286,39 @@ int main(int argc, char **argv)
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
-      std::cerr << "Starting Render.\n";
+    auto create_time_end = high_resolution_clock::now();
+    std::cerr << "Starting Render.\n";
 
+    auto render_time_start = high_resolution_clock::now();
     render<<<blocks, threads>>>(fb, nx, ny,  ns, d_camera, d_world, d_rand_state, depth, dev_background);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
     
      std::cerr << "Render Finished.\n";
 
-    stop = clock();
-    double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
-    std::cout << "Render took " << timer_seconds << " seconds.\n";
+     auto render_time_end = high_resolution_clock::now();
 
 
     // Output File
     std::fstream file;
     file.open("out.ppm", std::ios::out);
-    std::streambuf *ppm_out = file.rdbuf();
+   // std::streambuf *ppm_out = file.rdbuf();
 
      // Redirect Cout
-    std::cout.rdbuf(ppm_out);
+   // std::cout.rdbuf(ppm_out);
+
+    auto save_time_start = high_resolution_clock::now();
 
     // Output FB as Image
-    std::cout << "P3\n" << nx << " " << ny << "\n255\n";
+    file << "P3\n" << nx << " " << ny << "\n255\n";
     for (int j = ny-1;  j >= 0;  j--) {
         for (int i = 0;  i < nx;  i++) {
            size_t pixel_index = j*nx + i;
-            writeColor(std::cout,fb[pixel_index]);
+            writeColor(file,fb[pixel_index]);
         }
     }
+
+    auto save_time_end = high_resolution_clock::now();
 
     // clean up
     checkCudaErrors(cudaDeviceSynchronize());
@@ -330,11 +342,31 @@ int main(int argc, char **argv)
     checkCudaErrors(cudaFree(dev_pluto));
     checkCudaErrors(cudaFree(dev_sun));
 
-    std::cerr << "Done" << std::endl;
+    std::cerr << "Image Successfully Saved." << std::endl;
     file.close();
 
     // useful for cuda-memcheck --leak-check full
     cudaDeviceReset();
+    auto program_end = high_resolution_clock::now();
+
+    // Texture Time 
+    auto texture_time = duration_cast<milliseconds>(texture_time_end - texture_time_start);
+    std::cout << "Texture Transfer Time: " << texture_time.count() << "ms" << std::endl;
+
+    // Create Time 
+    auto create_time = duration_cast<milliseconds>(create_time_end - create_time_start);
+    std::cout << "World Creation Time: " << create_time.count() << "ms" << std::endl;
+
+    // Render Time
+    auto render_time = duration_cast<milliseconds>(render_time_end - render_time_start);
+    std::cout << "Render Time: " << render_time.count() << "ms" << std::endl;
+
+    // Save image time
+    auto save_time = duration_cast<milliseconds>(save_time_end - save_time_start);
+    std::cout << "Image Save Time: " << save_time.count() << "ms" << std::endl;
     
+     // Total Time
+    auto time = duration_cast<milliseconds>(program_end - program_start);
+    std::cout << "Total Time: " << time.count() << "ms" << std::endl;
     return 0;
 }
