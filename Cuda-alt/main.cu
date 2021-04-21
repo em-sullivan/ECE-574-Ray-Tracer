@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <chrono>
+#include <cstdlib>
 #include <curand_kernel.h>
 #include "Vec3.h"
 #include "Color.h"
@@ -157,14 +158,21 @@ int main(int argc, char **argv)
     auto program_start = high_resolution_clock::now();
 
     /****** Set up image size, block size, and frame buffer ******/
-    int nx = 3840;
-    int ny = 2160;
-    //int nx = 1920;
-    //int ny = 1080;
     int depth = 50;
-    int ns = 100;
     int tx = 8;
     int ty = 8;
+
+    int nx, ny, ns;
+    if (argc < 4) {
+        nx = 400;
+        ny = 225;
+        ns = 20;    
+    } else {
+        nx = atoi(argv[1]);
+        ny = atoi(argv[2]);
+        ns = atoi(argv[3]);
+    }
+    
 
     /****** Allocate and copy memory for any image textures ******/
     int tex_nx, tex_ny, tex_nn;
@@ -173,18 +181,19 @@ int main(int argc, char **argv)
     auto texture_time_start = high_resolution_clock::now();
 
     /******  Standard quality textures ******/
-    unsigned char *mercury = stbi_load("textures/mercury.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *venus = stbi_load("textures/venus.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *earth = stbi_load("textures/earth.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *mars = stbi_load("textures/mars.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *uranus = stbi_load("textures/uranus.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *neptune = stbi_load("textures/neptune.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *pluto = stbi_load("textures/pluto.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+    unsigned char *mercury = stbi_load("../Common/textures/mercury.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+    unsigned char *venus = stbi_load("../Common/textures/venus.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+    unsigned char *earth = stbi_load("../Common/textures/earth.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+    unsigned char *mars = stbi_load("../Common/textures/mars.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+    unsigned char *uranus = stbi_load("../Common/textures/uranus.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+    unsigned char *neptune = stbi_load("../Common/textures/neptune.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+    unsigned char *pluto = stbi_load("../Common/textures/pluto.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
 
     /****** High quality textures for larger bodies ******/
-    unsigned char *sun = stbi_load("textures/sun.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
-    unsigned char *jupiter = stbi_load("textures/jupiter.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
-    unsigned char *saturn = stbi_load("textures/saturn.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
+    unsigned char *sun = stbi_load("../Common/textures/sunHQ.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
+    unsigned char *jupiter = stbi_load("../Common/textures/jupiterHQ.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
+    unsigned char *saturn = stbi_load("../Common/textures/saturnHQ.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
+
 
     /****** Allocate memory and copy each texture to the GPU ******/
     unsigned char *dev_mercury;
