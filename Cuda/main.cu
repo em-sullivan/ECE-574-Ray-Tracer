@@ -21,7 +21,53 @@ using namespace std::chrono;
 
 #define RND (curand_uniform(&local_rand_state))
 
+__global__ void glow_balls(Hittable **d_list, Hittable **d_world, Camera **d_camera, 
+    int nx, int ny, curandState *rand_state)
+{
+    if (threadIdx.x == 0 && blockIdx.x == 0) {
+        curandState local_rand_state = *rand_state;
+        int i = 0;
+        d_list[i++] = new Sphere(Vec3(0, -1000, -1), 1000, new Lambertian(new Solid_Color(0.5, 0.5, 0.5)));
+        
+        for (int a = -8; a < 8; a++) {
+            for (int b = -8; b < 8; b++) {
+                float choose_mat = RND;
+                Vec3 center(a + 0.9f * RND, 0.2, b + 0.9f * RND);
+                if (choose_mat < .5f) {
+                    d_list[i++] = new Sphere(center, 0.2, 
+                        new Diffuse_Light(new Solid_Color(RND * RND, 0, RND * RND)));
+                } else {
+                    d_list[i++] = new Moving_Sphere(center, center + Vec3(0, 0, RND), 0.0, 1.0, 0.2,
+                        new Diffuse_Light(new Solid_Color(RND * RND, 0, RND * RND)));
+                }
 
+            }
+        }
+
+        d_list[i++] = new Sphere(Vec3(4, 1, 1.5f), 1.0, new Dielectric(1.5));
+
+        // World
+        *rand_state = local_rand_state;
+        *d_world = new Hittable_List(d_list, 16 * 16 + 2);
+
+        // Camera
+        Vec3 lookfrom = Vec3(13, 2, 5);
+        Vec3 lookat = Vec3(0, 0, 0);
+        float dist_to_focus = 10.0;
+        float aperture = .1f;
+        *d_camera = new Camera(lookfrom, lookat, Vec3(0,1,0), 25.0, float(nx)/float(ny), aperture, dist_to_focus, 0 ,1);
+    }
+}
+
+__global__ void free_glow_balls(Hittable **d_list, Hittable **d_world, Camera **d_camera) 
+{
+    for(int i=0; i < (16 * 16 + 2); i++) {
+        delete ((Hittable *)d_list[i])->mat_ptr;
+        delete d_list[i];
+    }
+    delete *d_world;
+    delete *d_camera;
+}
 /*
 __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny, curandState *rand_state, int tex_nx, int tex_ny, unsigned char *tex_data) 
 {
@@ -272,7 +318,8 @@ int main(int argc, char **argv)
     // make our world of hittables
     Hittable **d_list;
     //int numHittables = 22*22+1+4;
-    int numHittables =  11+45*56;
+    //int numHittables =  11+45*56;
+    int numHittables = 16 * 16 + 2;
     checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *)));
 
     Hittable **d_world;
@@ -281,8 +328,10 @@ int main(int argc, char **argv)
     Camera **d_camera;
     checkCudaErrors(cudaMalloc((void **)&d_camera, sizeof(Camera *)));
 
-    create_world<<<1,1>>>(d_list,d_world,d_camera, nx, ny, d_rand_state2, tex_nx, tex_ny, texHQ_nx, texHQ_ny, dev_sun, 
-                                             dev_mercury, dev_venus, dev_earth, dev_mars, dev_jupiter, dev_saturn, dev_uranus, dev_neptune, dev_pluto);
+    //create_world<<<1,1>>>(d_list,d_world,d_camera, nx, ny, d_rand_state2, tex_nx, tex_ny, texHQ_nx, texHQ_ny, dev_sun, 
+    //                                         dev_mercury, dev_venus, dev_earth, dev_mars, dev_jupiter, dev_saturn, dev_uranus, dev_neptune, dev_pluto);
+
+    glow_balls<<<1,1>>>(d_list, d_world, d_camera, nx, ny, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -330,7 +379,8 @@ int main(int argc, char **argv)
 
     // clean up
     checkCudaErrors(cudaDeviceSynchronize());
-    free_world<<<1,1>>>(d_list,d_world,d_camera);
+    //free_world<<<1,1>>>(d_list,d_world,d_camera);
+    free_glow_balls<<<1,1>>>(d_list, d_world, d_camera);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaFree(d_camera));
     checkCudaErrors(cudaFree(d_world));
