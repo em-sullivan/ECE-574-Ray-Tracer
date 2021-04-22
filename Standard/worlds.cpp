@@ -176,6 +176,100 @@ Camera earf_cam(float aspect_ratio)
     return Camera(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 }
 
+Hittable_List pool_table()
+{
+    Hittable_List table;
+
+    //800x300 image
+
+    auto ball1_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball1.jpg");
+    auto ball2_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball2.jpg");
+    auto ball3_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball3.jpg");
+    auto ball4_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball4.jpg");
+    auto ball5_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball5.jpg");
+    auto ball6_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball6.jpg");
+    auto ball7_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball7.jpg");
+    auto ball8_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball8.jpg");
+    auto ball9_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball9.jpg");
+    auto ball10_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball10.jpg");
+    auto ball11_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball11.jpg");
+    auto ball12_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball12.jpg");
+    auto ball13_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball13.jpg");
+    auto ball14_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball14.jpg");
+    auto ball15_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball15.jpg");
+    auto ball_cue_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/BallCue.jpg");
+
+    auto ball1_surface = make_shared<Lambertian>(ball1_texture);
+    auto ball2_surface = make_shared<Lambertian>(ball2_texture);
+    auto ball3_surface = make_shared<Lambertian>(ball3_texture);
+    auto ball4_surface = make_shared<Lambertian>(ball4_texture);
+    auto ball5_surface = make_shared<Lambertian>(ball5_texture);
+    auto ball6_surface = make_shared<Lambertian>(ball6_texture);
+    auto ball7_surface = make_shared<Lambertian>(ball7_texture);
+    auto ball8_surface = make_shared<Lambertian>(ball8_texture);
+    auto ball9_surface = make_shared<Lambertian>(ball9_texture);
+    auto ball10_surface = make_shared<Lambertian>(ball10_texture);
+    auto ball11_surface = make_shared<Lambertian>(ball11_texture);
+    auto ball12_surface = make_shared<Lambertian>(ball12_texture);
+    auto ball13_surface = make_shared<Lambertian>(ball13_texture);
+    auto ball14_surface = make_shared<Lambertian>(ball14_texture);
+    auto ball15_surface = make_shared<Lambertian>(ball15_texture);
+    auto ball_cue_surface = make_shared<Lambertian>(ball_cue_texture);
+    // auto table = make_shared<Sphere>(Point3(0, 0, 0), 2, ball1_surface);
+    table.add(make_shared<Sphere>(Point3(-.05, 0,    2), .5, ball1_surface)); //For Point3(diagonal, y, x)
+    table.add(make_shared<Sphere>(Point3(-.1, .5,   2.85), .5, ball2_surface));
+    table.add(make_shared<Sphere>(Point3(-.1, -.5,  2.85), .5, ball3_surface));
+    table.add(make_shared<Sphere>(Point3(-.15, -1,   3.7), .5, ball4_surface));
+    table.add(make_shared<Sphere>(Point3(-.15, 0,    3.7), .5, ball5_surface));
+    table.add(make_shared<Sphere>(Point3(-.15, 1,    3.7), .5, ball6_surface));
+    table.add(make_shared<Sphere>(Point3(-.185, 1.5,  4.55), .5, ball7_surface));
+    table.add(make_shared<Sphere>(Point3(-.185, .5,   4.55), .5, ball8_surface));
+    table.add(make_shared<Sphere>(Point3(-.185, -.5,  4.55), .5, ball9_surface));
+    table.add(make_shared<Sphere>(Point3(-.185, -1.5, 4.55), .5, ball10_surface));
+    table.add(make_shared<Sphere>(Point3(-.25, -2.0, 5.40), .5, ball11_surface));
+    table.add(make_shared<Sphere>(Point3(-.25, -1.0, 5.40), .5, ball12_surface));
+    table.add(make_shared<Sphere>(Point3(-.25, 0.0,  5.40), .5, ball13_surface));
+    table.add(make_shared<Sphere>(Point3(-.25, 1.0,  5.40), .5, ball14_surface));
+    table.add(make_shared<Sphere>(Point3(-.25, 2.0,  5.40), .5, ball15_surface));
+
+    table.add(make_shared<Sphere>(Point3(0, 0, -5), .5, ball_cue_surface));
+
+    //Ground
+    auto ground = make_shared<Checkered>(Color(54./255, 120./255, 75./255), Color(54./255, 120./255, 75./255));
+    table.add(make_shared<Sphere>(Point3(-100.5, 0.0, -1.0), 100.0, make_shared<Lambertian>(ground)));    
+
+    //Light for shading
+    // auto difflight = make_shared<Diffuse_Light>(Color(5, 5, 5));
+    // table.add(make_shared<Sphere>(Point3(3, 10, 0), 3, difflight));
+    auto difflight2 = make_shared<Diffuse_Light>(Color(5, 5, 5));
+    table.add(make_shared<XZ_Rect>(-200, 200, -100, 654, 554, difflight2));
+    // table.add(make_shared<Sphere>(Point3(2, -1, 2), .3, difflight2));
+    // table.add(make_shared<Sphere>(Point3(2, -.5, 4.55), .3, difflight2));
+    // table.add(make_shared<Sphere>(Point3(2, -2.75, 1), .3, difflight2));
+    // table.add(make_shared<Sphere>(Point3(2, 2.75, -1), .3, difflight2));
+    // table.add(make_shared<Sphere>(Point3(2, 0, -1.7), .3, difflight2));
+    // table.add(make_shared<Sphere>(Point3(2, 1, 2.4), .3, difflight2));
+    // table.add(make_shared<Sphere>(Point3(2, 1.7, 2.1), .3, difflight2));
+    // table.add(make_shared<Sphere>(Point3(2, -1.7, .67), .3, difflight2));
+
+    return table;
+}
+
+Camera pool_table_cam(float aspect_ratio)
+{
+    // auto lookfrom = Point3(7, 0, -20);
+    // auto lookat = Point3(-2, 0, 10);
+    auto lookfrom = Point3(13, 2, 3);
+    auto lookat = Point3(0, 0, 0);
+    auto vup = Vec3(0, 1, 0);
+    float fov = 25;
+    // float dist_to_focus = 15.0;
+    float dist_to_focus = (lookfrom-lookat).length();
+    float aperture = 0;
+
+    return Camera(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0); 
+}
+
 Hittable_List simple_light() 
 {
     Hittable_List objects;

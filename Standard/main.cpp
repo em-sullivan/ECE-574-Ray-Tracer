@@ -25,10 +25,10 @@ int main(int argc, char **argv)
     int image;
 
     if (argc < 5) {
-        image = 0; 
-        image_width = 400;
-        image_height = 225;
-        samples_per_pixel = 20;
+        image = 11; 
+        image_width = 500;
+        image_height = 300;
+        samples_per_pixel = 500;
     } else {
         image = atoi(argv[1]);
         image_width = atoi(argv[2]);
@@ -124,6 +124,13 @@ int main(int argc, char **argv)
             world = glow_balls();
             cam = glow_balls_cam(aspect_ratio);
             background = Color(0, 0, 0);
+
+        case 11:
+            world = pool_table();
+            cam = pool_table_cam(aspect_ratio);
+            // background = Color(.212, .35, .29);
+            background = Color(0, 0, 0);
+            // background = Color(0.70, 0.80, 1.00);
     }
 
     // Render output variable

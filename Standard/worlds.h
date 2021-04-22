@@ -35,6 +35,9 @@ Camera two_fuzzy_balls_cam(float aspect_ratio);
 Hittable_List earf();
 Camera earf_cam(float aspect_ratio);
 
+Hittable_List pool_table();
+Camera pool_table_cam(float aspect_ratio);
+
 Hittable_List simple_light();
 Camera simple_light_cam(float aspect_ratio);
 
