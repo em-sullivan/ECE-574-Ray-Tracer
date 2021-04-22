@@ -13,6 +13,7 @@
 #include "Camera.h"
 #include "Texture.h"
 #include "Render.h"
+#include "Moving-Sphere.h"
 
 #include "shader_stb_image.h"
 
@@ -100,6 +101,7 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
         d_list[i++] = new Sphere(Vec3(0, 0, 450),  16.0, new  Lambertian(new Image_Text(neptune, tex_nx, tex_ny)));
         d_list[i++] = new Sphere(Vec3(0, 0, 575),  2.75, new  Lambertian(new Image_Text(pluto, tex_nx, tex_ny)));
 
+
         // Generates random stars in the background
         // DEPENDS GREATLY on lookfrom, lookat, and fov
         for(int a = -450; a < 450; a+=20) {
@@ -146,7 +148,7 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
 __global__ void free_world(Hittable **d_list, Hittable **d_world, Camera **d_camera) 
 {
     for(int i=0; i < 11+45*56; i++) {
-        delete ((Sphere *)d_list[i])->mat_ptr;
+        delete ((Hittable *)d_list[i])->mat_ptr;
         delete d_list[i];
     }
     delete *d_world;

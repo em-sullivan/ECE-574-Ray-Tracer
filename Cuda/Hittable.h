@@ -34,6 +34,7 @@ class Hittable
 public:
     __device__ virtual bool hit(const Ray &r, float t_min, float t_mix, hit_record &rec) const = 0;
     __device__ virtual bool bounding_box(float time0, float time1, Aabb &output_box) const = 0;
+    Material *mat_ptr;
 };
 
 
