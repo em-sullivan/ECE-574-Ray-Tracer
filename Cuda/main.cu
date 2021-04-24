@@ -207,21 +207,21 @@ __global__ void pool_table(Hittable **d_list, Hittable **d_world, Camera **d_cam
         int i = 0;
 
         // Pool balls
-        d_list[i++] = new Sphere(Vec3(-.05, 0, 2), .5,  new Metal(Vec3(4*0.8314, 4*0.83,  4*0.09), 1));
-        d_list[i++] = new Sphere(Vec3(-.1, .5, 2.85), .5, new Metal(Vec3(4*0.059, 4*0.333, 4*0.694), 1));
-        d_list[i++] = new Sphere(Vec3(-.1, -.5, 2.85), .5, new Metal(Vec3(4*0.73, 4*0.102, 4*0.102), 1));
-        d_list[i++] = new Sphere(Vec3(-.15, -1, 3.7), .5, new Metal(Vec3(4*0.431, 4*0.102, 4*0.53), 1));
+        d_list[i++] = new Sphere(Vec3(-.05, 0, 2), .5,  new Metal(Vec3(4.f*0.8314f, 4.f*0.83f,  4.f*0.09f), 1));
+        d_list[i++] = new Sphere(Vec3(-.1, .5, 2.85), .5, new Metal(Vec3(4.f*0.059f, 4.f*0.333f, 4.f*0.694f), 1));
+        d_list[i++] = new Sphere(Vec3(-.1, -.5, 2.85), .5, new Metal(Vec3(4.f*0.73f, 4.f*0.102f, 4.f*0.102f), 1));
+        d_list[i++] = new Sphere(Vec3(-.15, -1, 3.7), .5, new Metal(Vec3(4.f*0.431f, 4.f*0.102f, 4.f*0.53f), 1));
         d_list[i++] = new Sphere(Vec3(-.15, 0, 3.7), .5, new Metal(Vec3(0, 0, 0), 1));
-        d_list[i++] = new Sphere(Vec3(-.15, 1, 3.7), .5, new Metal(Vec3(4*0.059, 4*0.302, 4*0.059), 1));
-        d_list[i++] = new Sphere(Vec3(-.185, 1.5, 4.55), .5, new Metal(Vec3(4*0.37, 4*0.02,  4*0.01568), 1));
-        d_list[i++] = new Sphere(Vec3(-.185, .5, 4.55), .5, new Metal(Vec3(4*0.80, 4*0.333, 4*0.063), 1));
-        d_list[i++] = new Sphere(Vec3(-.185, -.5, 4.55), .5, new Metal(Vec3(4*0.8314, 4*0.83,  4*0.09), 1));
-        d_list[i++] = new Sphere(Vec3(-.185, -1.5, 4.55), .5, new Metal(Vec3(4*0.059, 4*0.333, 4*0.694), 1));
-        d_list[i++] = new Sphere(Vec3(-.25, -2.0, 5.40), .5, new Metal(Vec3(4*0.37, 4*0.02,  4*0.01568), 1));
-        d_list[i++] = new Sphere(Vec3(-.25, -1.0, 5.40), .5, new Metal(Vec3(4*0.059, 4*0.302, 4*0.059), 1));
-        d_list[i++] = new Sphere(Vec3(-.25, 0.0,  5.40), .5, new Metal(Vec3(4*0.80, 4*0.333, 4*0.063), 1));
-        d_list[i++] = new Sphere(Vec3(-.25, 1.0, 5.40), .5, new Metal(Vec3(4*0.431, 4*0.102, 4*0.53), 1));
-        d_list[i++] = new Sphere(Vec3(-.25, 2.0, 5.40), .5, new Metal(Vec3(4*0.73, 4*0.102, 4*0.102), 1));
+        d_list[i++] = new Sphere(Vec3(-.15, 1, 3.7), .5, new Metal(Vec3(4.f*0.059f, 4.f*0.302f, 4.f*0.059f), 1));
+        d_list[i++] = new Sphere(Vec3(-.185, 1.5, 4.55), .5, new Metal(Vec3(4.f*0.37f, 4.f*0.02f,  4.f*0.01568f), 1));
+        d_list[i++] = new Sphere(Vec3(-.185, .5, 4.55), .5, new Metal(Vec3(4.f*0.80f, 4.f*0.333f, 4.f*0.063f), 1));
+        d_list[i++] = new Sphere(Vec3(-.185, -.5, 4.55), .5, new Metal(Vec3(4.f*0.8314f, 4.f*0.83f,  4.f*0.09f), 1));
+        d_list[i++] = new Sphere(Vec3(-.185, -1.5, 4.55), .5, new Metal(Vec3(4.f*0.059f, 4.f*0.333f, 4.f*0.694f), 1));
+        d_list[i++] = new Sphere(Vec3(-.25, -2.0, 5.40), .5, new Metal(Vec3(4.f*0.37f, 4.f*0.02f,  4.f*0.01568f), 1));
+        d_list[i++] = new Sphere(Vec3(-.25, -1.0, 5.40), .5, new Metal(Vec3(4.f*0.059f, 4.f*0.302f, 4.f*0.059f), 1));
+        d_list[i++] = new Sphere(Vec3(-.25, 0.0,  5.40), .5, new Metal(Vec3(4.f*0.80f, 4.f*0.333f, 4.f*0.063f), 1));
+        d_list[i++] = new Sphere(Vec3(-.25, 1.0, 5.40), .5, new Metal(Vec3(4.f*0.431f, 4.f*0.102f, 4.f*0.53f), 1));
+        d_list[i++] = new Sphere(Vec3(-.25, 2.0, 5.40), .5, new Metal(Vec3(4.f*0.73f, 4.f*0.102f, 4.f*0.102f), 1));
         
         // Cue ball
         d_list[i++] = new Sphere(Vec3(0, 0, -5), .5, new Metal(Vec3(1, 1, 1), 1));
