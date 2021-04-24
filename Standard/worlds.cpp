@@ -410,7 +410,7 @@ Hittable_List final_scene()
     boundary = make_shared<Sphere>(Point3(0, 0, 0), 5000, make_shared<Dielectric>(1.5));
     objects.add(make_shared<Constant_Medium>(boundary, .0001, Color(1,1,1)));
 
-    auto emat = make_shared<Lambertian>(make_shared<Image_Text>("textures/earthmap.jpg"));
+    auto emat = make_shared<Lambertian>(make_shared<Image_Text>("../Common/textures/earthmap.jpg"));
     objects.add(make_shared<Sphere>(Point3(400,200,400), 100, emat));
     auto pertext = make_shared<Noise_Text>(0.1);
     objects.add(make_shared<Sphere>(Point3(220,280,300), 80, make_shared<Lambertian>(pertext)));
