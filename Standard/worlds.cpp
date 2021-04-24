@@ -180,8 +180,6 @@ Hittable_List pool_table()
 {
     Hittable_List table;
 
-    //800x300 image
-
     auto ball1_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball1.jpg");
     auto ball2_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball2.jpg");
     auto ball3_texture = make_shared<Image_Text>("../Common/textures/Pool Ball Skins/Ball3.jpg");
@@ -235,22 +233,11 @@ Hittable_List pool_table()
     table.add(make_shared<Sphere>(Point3(0, 0, -5), .5, ball_cue_surface));
 
     //Ground
-    auto ground = make_shared<Checkered>(Color(54./255, 120./255, 75./255), Color(54./255, 120./255, 75./255));
-    table.add(make_shared<Sphere>(Point3(-100.5, 0.0, -1.0), 100.0, make_shared<Lambertian>(ground)));    
+    auto ground = make_shared<Lambertian>(Color(54./255, 120./255, 75./255));
+    table.add(make_shared<Sphere>(Point3(-100.5, 0.0, -1.0), 100.0, ground));    
 
-    //Light for shading
-    // auto difflight = make_shared<Diffuse_Light>(Color(5, 5, 5));
-    // table.add(make_shared<Sphere>(Point3(3, 10, 0), 3, difflight));
-    auto difflight2 = make_shared<Diffuse_Light>(Color(5, 5, 5));
-    table.add(make_shared<XZ_Rect>(-200, 200, -100, 654, 554, difflight2));
-    // table.add(make_shared<Sphere>(Point3(2, -1, 2), .3, difflight2));
-    // table.add(make_shared<Sphere>(Point3(2, -.5, 4.55), .3, difflight2));
-    // table.add(make_shared<Sphere>(Point3(2, -2.75, 1), .3, difflight2));
-    // table.add(make_shared<Sphere>(Point3(2, 2.75, -1), .3, difflight2));
-    // table.add(make_shared<Sphere>(Point3(2, 0, -1.7), .3, difflight2));
-    // table.add(make_shared<Sphere>(Point3(2, 1, 2.4), .3, difflight2));
-    // table.add(make_shared<Sphere>(Point3(2, 1.7, 2.1), .3, difflight2));
-    // table.add(make_shared<Sphere>(Point3(2, -1.7, .67), .3, difflight2));
+    auto difflight = make_shared<Diffuse_Light>(Color(20, 20, 20));
+    table.add(make_shared<XZ_Rect>(-200, 200, -100, 654, 554, difflight));
 
     return table;
 }
@@ -259,12 +246,13 @@ Camera pool_table_cam(float aspect_ratio)
 {
     // auto lookfrom = Point3(7, 0, -20);
     // auto lookat = Point3(-2, 0, 10);
+    // auto lookfrom = Point3(20, -10, 3);
     auto lookfrom = Point3(13, 2, 3);
     auto lookat = Point3(0, 0, 0);
     auto vup = Vec3(0, 1, 0);
-    float fov = 25;
+    float fov = 34;
     // float dist_to_focus = 15.0;
-    float dist_to_focus = (lookfrom-lookat).length();
+    float dist_to_focus = 22.5;//(lookfrom-lookat).length()-10;
     float aperture = 0;
 
     return Camera(lookfrom, lookat, vup, fov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0); 

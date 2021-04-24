@@ -124,6 +124,7 @@ int main(int argc, char **argv)
             world = glow_balls();
             cam = glow_balls_cam(aspect_ratio);
             background = Color(0, 0, 0);
+            break;
 
         case 11:
             world = pool_table();
