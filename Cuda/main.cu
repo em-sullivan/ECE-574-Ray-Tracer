@@ -21,8 +21,7 @@ using namespace std::chrono;
 
 #define RND (curand_uniform(&local_rand_state))
 
-__global__ void glow_balls(Hittable **d_list, Hittable **d_world, Camera **d_camera, 
-    int nx, int ny, curandState *rand_state)
+__global__ void glow_balls(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny, curandState *rand_state)
 {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         curandState local_rand_state = *rand_state;
@@ -68,13 +67,12 @@ __global__ void free_glow_balls(Hittable **d_list, Hittable **d_world, Camera **
     delete *d_world;
     delete *d_camera;
 }
-/*
-__global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny, curandState *rand_state, int tex_nx, int tex_ny, unsigned char *tex_data) 
+
+__global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny, curandState *rand_state) 
 {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
         curandState local_rand_state = *rand_state;
-        Texture *checker = new Checkered( new Solid_Color(Vec3(0.2,0.3, 0.1)), new Solid_Color(Vec3(0.3, 0.1, 0.2)));
-        d_list[0] = new Sphere(Vec3(0,-1000.0,-1), 1000, new Lambertian(checker));
+        d_list[0] = new Sphere(Vec3(0,-1000.0,-1), 1000, new Lambertian(new Solid_Color(Vec3(0.5,0.5,0.5))));
         int i = 1;
         for(int a = -11; a < 11; a++) {
             for(int b = -11; b < 11; b++) {
@@ -92,14 +90,14 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
             }
         }
 
-        d_list[i++] = new Sphere(Vec3(-4, 1,0),  1.0, new Dielectric(1.5));
-        d_list[i++] = new Sphere(Vec3(0, 1, 0), 1.0 , new Lambertian(new Image_Text(tex_data, tex_nx, tex_ny)));
-        d_list[i++] =  new Sphere(Vec3(0, 4, 5),  1.0, new Diffuse_Light( new Solid_Color(Vec3(7, 7, 7))));
+        d_list[i++] = new Sphere(Vec3(0, 1,0),  1.0, new Dielectric(1.5));
+        d_list[i++] = new Sphere(Vec3(-4, 1, 0), 1.0 , new Lambertian(new Solid_Color(Vec3(0.4,0.3,0.1))));
+        //d_list[i++] =  new Sphere(Vec3(0, 4, 5),  1.0, new Diffuse_Light( new Solid_Color(Vec3(7, 7, 7))));
         d_list[i++] = new Sphere(Vec3(4, 1, 0),  1.0, new Metal(Vec3(0.7, 0.6, 0.5), 0.0));
 
         
         *rand_state = local_rand_state;
-        *d_world  = new Hittable_List(d_list, 22*22+1+4);
+        *d_world  = new Hittable_List(d_list, 22*22+1+3);
 
         Vec3 lookfrom = Vec3(13,2,3);
         Vec3 lookat = Vec3(0,0,0);
@@ -111,16 +109,15 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
 
 __global__ void free_world(Hittable **d_list, Hittable **d_world, Camera **d_camera) 
 {
-    for(int i=0; i < 22*22+1+4; i++) {
+    for(int i=0; i < 22*22+1+3; i++) {
         delete ((Sphere *)d_list[i])->mat_ptr;
         delete d_list[i];
     }
     delete *d_world;
     delete *d_camera;
 }
-*/
 
-__global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny, curandState *rand_state, int tex_nx, int tex_ny, int texHQ_nx, int texHQ_ny, unsigned char *sun,  
+__global__ void solar_system(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny, curandState *rand_state, int tex_nx, int tex_ny, int texHQ_nx, int texHQ_ny, unsigned char *sun,  
                                               unsigned char *mercury, unsigned char *venus, unsigned char *earth,  unsigned char *mars,  unsigned char *jupiter,  unsigned char *saturn,  unsigned char *uranus,  unsigned char *neptune, unsigned char* pluto) 
 {
     if (threadIdx.x == 0 && blockIdx.x == 0) {
@@ -191,7 +188,7 @@ __global__ void create_world(Hittable **d_list, Hittable **d_world, Camera **d_c
     }
 }
 
-__global__ void free_world(Hittable **d_list, Hittable **d_world, Camera **d_camera) 
+__global__ void free_solar_system(Hittable **d_list, Hittable **d_world, Camera **d_camera) 
 {
     for(int i=0; i < 11+45*56; i++) {
         delete ((Hittable *)d_list[i])->mat_ptr;
@@ -210,40 +207,23 @@ int main(int argc, char **argv)
     int tx = 8;
     int ty = 8;
 
-    int nx, ny, ns;
-    if (argc < 4) {
+    int image, nx, ny, ns;
+    if (argc < 5) {
         nx = 400;
         ny = 225;
-        ns = 20;    
+        ns = 20;
+        image = 0;    
     } else {
-        nx = atoi(argv[1]);
-        ny = atoi(argv[2]);
-        ns = atoi(argv[3]);
+        image = atoi(argv[1]);
+        nx = atoi(argv[2]);
+        ny = atoi(argv[3]);
+        ns = atoi(argv[4]);
     }
     
 
     /****** Allocate and copy memory for any image textures ******/
     int tex_nx, tex_ny, tex_nn;
     int texHQ_nx, texHQ_ny, texHQ_nn;
-
-    auto texture_time_start = high_resolution_clock::now();
-
-    /******  Standard quality textures ******/
-    unsigned char *mercury = stbi_load("../Common/textures/mercury.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *venus = stbi_load("../Common/textures/venus.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *earth = stbi_load("../Common/textures/earth.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *mars = stbi_load("../Common/textures/mars.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *uranus = stbi_load("../Common/textures/uranus.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *neptune = stbi_load("../Common/textures/neptune.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-    unsigned char *pluto = stbi_load("../Common/textures/pluto.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
-
-    /****** High quality textures for larger bodies ******/
-    unsigned char *sun = stbi_load("../Common/textures/sunHQ.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
-    unsigned char *jupiter = stbi_load("../Common/textures/jupiterHQ.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
-    unsigned char *saturn = stbi_load("../Common/textures/saturnHQ.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
-
-
-    /****** Allocate memory and copy each texture to the GPU ******/
     unsigned char *dev_mercury;
     unsigned char *dev_venus;
     unsigned char *dev_earth;
@@ -255,33 +235,57 @@ int main(int argc, char **argv)
     unsigned char *dev_sun;
     unsigned char *dev_pluto;
 
-    size_t texSize = tex_nx*tex_ny*tex_nn*sizeof(unsigned char);
-    size_t texHQSize = texHQ_nx*texHQ_ny*texHQ_nn*sizeof(unsigned char);
-    
-    checkCudaErrors(cudaMalloc((void **)&dev_mercury, texSize));
-    checkCudaErrors(cudaMemcpy(dev_mercury, mercury, texSize, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMalloc((void **)&dev_venus, texSize));
-    checkCudaErrors(cudaMemcpy(dev_venus, venus, texSize, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMalloc((void **)&dev_earth, texSize));
-    checkCudaErrors(cudaMemcpy(dev_earth, earth, texSize, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMalloc((void **)&dev_mars, texSize));
-    checkCudaErrors(cudaMemcpy(dev_mars, mars, texSize, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMalloc((void **)&dev_uranus, texSize));
-    checkCudaErrors(cudaMemcpy(dev_uranus, uranus, texSize, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMalloc((void **)&dev_neptune, texSize));
-    checkCudaErrors(cudaMemcpy(dev_neptune, neptune, texSize, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMalloc((void **)&dev_pluto, texSize));
-    checkCudaErrors(cudaMemcpy(dev_pluto, pluto, texSize, cudaMemcpyHostToDevice));
+    auto texture_time_start = high_resolution_clock::now();
 
-    checkCudaErrors(cudaMalloc((void **)&dev_sun, texHQSize));
-    checkCudaErrors(cudaMemcpy(dev_sun, sun, texHQSize, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMalloc((void **)&dev_jupiter, texHQSize));
-    checkCudaErrors(cudaMemcpy(dev_jupiter, jupiter, texHQSize, cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMalloc((void **)&dev_saturn, texHQSize));
-    checkCudaErrors(cudaMemcpy(dev_saturn, saturn, texHQSize, cudaMemcpyHostToDevice));
+    if (image == 1) {
+        /******  Standard quality textures ******/
+        unsigned char *mercury = stbi_load("../Common/textures/mercury.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+        unsigned char *venus = stbi_load("../Common/textures/venus.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+        unsigned char *earth = stbi_load("../Common/textures/earth.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+        unsigned char *mars = stbi_load("../Common/textures/mars.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+        unsigned char *uranus = stbi_load("../Common/textures/uranus.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+        unsigned char *neptune = stbi_load("../Common/textures/neptune.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+        unsigned char *pluto = stbi_load("../Common/textures/pluto.jpg", &tex_nx, &tex_ny, &tex_nn, 0);
+
+        /****** High quality textures for larger bodies ******/
+        unsigned char *sun = stbi_load("../Common/textures/sunHQ.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
+        unsigned char *jupiter = stbi_load("../Common/textures/jupiterHQ.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
+        unsigned char *saturn = stbi_load("../Common/textures/saturnHQ.jpg", &texHQ_nx, &texHQ_ny, &texHQ_nn, 0);
+
+
+        /****** Allocate memory and copy each texture to the GPU ******/
+        size_t texSize = tex_nx*tex_ny*tex_nn*sizeof(unsigned char);
+        size_t texHQSize = texHQ_nx*texHQ_ny*texHQ_nn*sizeof(unsigned char);
+    
+        checkCudaErrors(cudaMalloc((void **)&dev_mercury, texSize));
+        checkCudaErrors(cudaMemcpy(dev_mercury, mercury, texSize, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMalloc((void **)&dev_venus, texSize));
+        checkCudaErrors(cudaMemcpy(dev_venus, venus, texSize, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMalloc((void **)&dev_earth, texSize));
+        checkCudaErrors(cudaMemcpy(dev_earth, earth, texSize, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMalloc((void **)&dev_mars, texSize));
+        checkCudaErrors(cudaMemcpy(dev_mars, mars, texSize, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMalloc((void **)&dev_uranus, texSize));
+        checkCudaErrors(cudaMemcpy(dev_uranus, uranus, texSize, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMalloc((void **)&dev_neptune, texSize));
+        checkCudaErrors(cudaMemcpy(dev_neptune, neptune, texSize, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMalloc((void **)&dev_pluto, texSize));
+        checkCudaErrors(cudaMemcpy(dev_pluto, pluto, texSize, cudaMemcpyHostToDevice));
+
+        checkCudaErrors(cudaMalloc((void **)&dev_sun, texHQSize));
+        checkCudaErrors(cudaMemcpy(dev_sun, sun, texHQSize, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMalloc((void **)&dev_jupiter, texHQSize));
+        checkCudaErrors(cudaMemcpy(dev_jupiter, jupiter, texHQSize, cudaMemcpyHostToDevice));
+        checkCudaErrors(cudaMalloc((void **)&dev_saturn, texHQSize));
+        checkCudaErrors(cudaMemcpy(dev_saturn, saturn, texHQSize, cudaMemcpyHostToDevice));
+    }
 
     /****** Allocate and copy memory for adjustable background color ******/
-    Color background = Color(0, 0, 0);
+    Color background;
+    if (image == 0) background = Color(0, 0, 0);
+    else if (image == 1) background = Color(0, 0, 0);
+    else background = Color(0.70, 0.80, 1.00);
+
     Color *dev_background;
     checkCudaErrors(cudaMallocManaged((void **)&dev_background, sizeof(Color)));
     checkCudaErrors(cudaMemcpy(dev_background, &background, sizeof(Color), cudaMemcpyHostToDevice));
@@ -317,10 +321,18 @@ int main(int argc, char **argv)
 
     // make our world of hittables
     Hittable **d_list;
-    //int numHittables = 22*22+1+4;
-    //int numHittables =  11+45*56;
-    int numHittables = 16 * 16 + 2;
-    checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *)));
+    int numHittables;
+
+    if (image == 0) {
+        numHittables = 16 * 16 + 2;
+        checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *)));
+    } else if (image == 1) {
+        numHittables =  11+45*56;
+        checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *))); 
+    } else {
+        numHittables = 22*22+1+4;
+        checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *))); 
+    }
 
     Hittable **d_world;
     checkCudaErrors(cudaMalloc((void **)&d_world, sizeof(Hittable *)));
@@ -328,10 +340,15 @@ int main(int argc, char **argv)
     Camera **d_camera;
     checkCudaErrors(cudaMalloc((void **)&d_camera, sizeof(Camera *)));
 
-    //create_world<<<1,1>>>(d_list,d_world,d_camera, nx, ny, d_rand_state2, tex_nx, tex_ny, texHQ_nx, texHQ_ny, dev_sun, 
-    //                                         dev_mercury, dev_venus, dev_earth, dev_mars, dev_jupiter, dev_saturn, dev_uranus, dev_neptune, dev_pluto);
+    if (image == 0) {
+        glow_balls<<<1,1>>>(d_list, d_world, d_camera, nx, ny, d_rand_state2);
+    } else if (image == 1) {
+        solar_system<<<1,1>>>(d_list,d_world,d_camera, nx, ny, d_rand_state2, tex_nx, tex_ny, texHQ_nx, texHQ_ny, dev_sun, 
+                                                 dev_mercury, dev_venus, dev_earth, dev_mars, dev_jupiter, dev_saturn, dev_uranus, dev_neptune, dev_pluto);
+    } else {
+        create_world<<<1,1>>>(d_list,d_world,d_camera, nx, ny, d_rand_state2);
+    }
 
-    glow_balls<<<1,1>>>(d_list, d_world, d_camera, nx, ny, d_rand_state2);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 
@@ -379,8 +396,24 @@ int main(int argc, char **argv)
 
     // clean up
     checkCudaErrors(cudaDeviceSynchronize());
-    //free_world<<<1,1>>>(d_list,d_world,d_camera);
-    free_glow_balls<<<1,1>>>(d_list, d_world, d_camera);
+    if (image == 0) {
+        free_glow_balls<<<1,1>>>(d_list, d_world, d_camera);
+    } else if (image == 1) {
+        free_solar_system<<<1,1>>>(d_list,d_world,d_camera);
+        checkCudaErrors(cudaFree(dev_mercury));
+        checkCudaErrors(cudaFree(dev_venus));
+        checkCudaErrors(cudaFree(dev_earth));
+        checkCudaErrors(cudaFree(dev_mars));
+        checkCudaErrors(cudaFree(dev_jupiter));
+        checkCudaErrors(cudaFree(dev_saturn));
+        checkCudaErrors(cudaFree(dev_uranus));
+        checkCudaErrors(cudaFree(dev_neptune));
+        checkCudaErrors(cudaFree(dev_pluto));
+        checkCudaErrors(cudaFree(dev_sun));
+    } else {
+        free_world<<<1,1>>>(d_list, d_world, d_camera);
+    }
+
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaFree(d_camera));
     checkCudaErrors(cudaFree(d_world));
@@ -389,16 +422,6 @@ int main(int argc, char **argv)
     checkCudaErrors(cudaFree(d_rand_state2));
     checkCudaErrors(cudaFree(fb));
     checkCudaErrors(cudaFree(dev_background));
-    checkCudaErrors(cudaFree(dev_mercury));
-    checkCudaErrors(cudaFree(dev_venus));
-    checkCudaErrors(cudaFree(dev_earth));
-    checkCudaErrors(cudaFree(dev_mars));
-    checkCudaErrors(cudaFree(dev_jupiter));
-    checkCudaErrors(cudaFree(dev_saturn));
-    checkCudaErrors(cudaFree(dev_uranus));
-    checkCudaErrors(cudaFree(dev_neptune));
-    checkCudaErrors(cudaFree(dev_pluto));
-    checkCudaErrors(cudaFree(dev_sun));
 
     std::cerr << "Image Successfully Saved." << std::endl;
     file.close();
