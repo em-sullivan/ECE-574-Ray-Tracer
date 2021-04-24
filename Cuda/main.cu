@@ -198,6 +198,63 @@ __global__ void free_solar_system(Hittable **d_list, Hittable **d_world, Camera 
     delete *d_camera;
 }
 
+__global__ void pool_table(Hittable **d_list, Hittable **d_world, Camera **d_camera, int nx, int ny, curandState *rand_state) 
+{
+
+    if (threadIdx.x == 0 && blockIdx.x == 0) {
+        curandState local_rand_state = *rand_state;
+
+        int i = 0;
+
+        // Pool balls
+        d_list[i++] = new Sphere(Vec3(-.05, 0, 2), .5,  new Metal(Vec3(4*0.8314, 4*0.83,  4*0.09), 1));
+        d_list[i++] = new Sphere(Vec3(-.1, .5, 2.85), .5, new Metal(Vec3(4*0.059, 4*0.333, 4*0.694), 1));
+        d_list[i++] = new Sphere(Vec3(-.1, -.5, 2.85), .5, new Metal(Vec3(4*0.73, 4*0.102, 4*0.102), 1));
+        d_list[i++] = new Sphere(Vec3(-.15, -1, 3.7), .5, new Metal(Vec3(4*0.431, 4*0.102, 4*0.53), 1));
+        d_list[i++] = new Sphere(Vec3(-.15, 0, 3.7), .5, new Metal(Vec3(0, 0, 0), 1));
+        d_list[i++] = new Sphere(Vec3(-.15, 1, 3.7), .5, new Metal(Vec3(4*0.059, 4*0.302, 4*0.059), 1));
+        d_list[i++] = new Sphere(Vec3(-.185, 1.5, 4.55), .5, new Metal(Vec3(4*0.37, 4*0.02,  4*0.01568), 1));
+        d_list[i++] = new Sphere(Vec3(-.185, .5, 4.55), .5, new Metal(Vec3(4*0.80, 4*0.333, 4*0.063), 1));
+        d_list[i++] = new Sphere(Vec3(-.185, -.5, 4.55), .5, new Metal(Vec3(4*0.8314, 4*0.83,  4*0.09), 1));
+        d_list[i++] = new Sphere(Vec3(-.185, -1.5, 4.55), .5, new Metal(Vec3(4*0.059, 4*0.333, 4*0.694), 1));
+        d_list[i++] = new Sphere(Vec3(-.25, -2.0, 5.40), .5, new Metal(Vec3(4*0.37, 4*0.02,  4*0.01568), 1));
+        d_list[i++] = new Sphere(Vec3(-.25, -1.0, 5.40), .5, new Metal(Vec3(4*0.059, 4*0.302, 4*0.059), 1));
+        d_list[i++] = new Sphere(Vec3(-.25, 0.0,  5.40), .5, new Metal(Vec3(4*0.80, 4*0.333, 4*0.063), 1));
+        d_list[i++] = new Sphere(Vec3(-.25, 1.0, 5.40), .5, new Metal(Vec3(4*0.431, 4*0.102, 4*0.53), 1));
+        d_list[i++] = new Sphere(Vec3(-.25, 2.0, 5.40), .5, new Metal(Vec3(4*0.73, 4*0.102, 4*0.102), 1));
+        
+        // Cue ball
+        d_list[i++] = new Sphere(Vec3(0, 0, -5), .5, new Metal(Vec3(1, 1, 1), 1));
+
+        // The ground of the table
+        d_list[i++] = new Sphere(Vec3(-100.5, 0.0, -1.0), 100, new Lambertian(Vec3(.212, .4706, .294)));
+
+        // Lighting above the table
+        d_list[i++] = new Sphere(Vec3(100, 5, 0), 10, new Diffuse_Light(Vec3(20, 20, 20)));
+
+        // Table
+        *rand_state = local_rand_state;
+        *d_world = new Hittable_List(d_list, 18);
+
+        // Camera
+        Vec3 lookfrom = Vec3(3, 0, -15);
+        Vec3 lookat = Vec3(-2, 0, 10);
+        float dist_to_focus = 25.0;
+        float aperture = 0;
+        *d_camera = new Camera(lookfrom, lookat, Vec3(0,0,1), 10.0, float(nx)/float(ny), aperture, dist_to_focus, 0 ,1);
+    }
+}
+
+__global__ void free_pool_table(Hittable **d_list, Hittable **d_world, Camera **d_camera) 
+{
+    for(int i=0; i < 17; i++) {
+        delete ((Hittable *)d_list[i])->mat_ptr;
+        delete d_list[i];
+    }
+    delete *d_world;
+    delete *d_camera;
+}
+
 int main(int argc, char **argv)
 {
     auto program_start = high_resolution_clock::now();
@@ -211,8 +268,8 @@ int main(int argc, char **argv)
     if (argc < 5) {
         nx = 400;
         ny = 225;
-        ns = 20;
-        image = 0;    
+        ns = 10000;
+        image = 2;    
     } else {
         image = atoi(argv[1]);
         nx = atoi(argv[2]);
@@ -284,6 +341,7 @@ int main(int argc, char **argv)
     Color background;
     if (image == 0) background = Color(0, 0, 0);
     else if (image == 1) background = Color(0, 0, 0);
+    else if (image == 2) background = Color(0, 0, 0);
     else background = Color(0.70, 0.80, 1.00);
 
     Color *dev_background;
@@ -329,6 +387,9 @@ int main(int argc, char **argv)
     } else if (image == 1) {
         numHittables =  11+45*56;
         checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *))); 
+    } else if (image == 2) {
+        numHittables = 18;
+        checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *))); 
     } else {
         numHittables = 22*22+1+4;
         checkCudaErrors(cudaMalloc((void **)&d_list, numHittables*sizeof(Hittable *))); 
@@ -345,6 +406,8 @@ int main(int argc, char **argv)
     } else if (image == 1) {
         solar_system<<<1,1>>>(d_list,d_world,d_camera, nx, ny, d_rand_state2, tex_nx, tex_ny, texHQ_nx, texHQ_ny, dev_sun, 
                                                  dev_mercury, dev_venus, dev_earth, dev_mars, dev_jupiter, dev_saturn, dev_uranus, dev_neptune, dev_pluto);
+    } else if (image == 2) {
+        pool_table<<<1,1>>>(d_list, d_world, d_camera, nx, ny, d_rand_state2);
     } else {
         create_world<<<1,1>>>(d_list,d_world,d_camera, nx, ny, d_rand_state2);
     }
@@ -399,7 +462,7 @@ int main(int argc, char **argv)
     if (image == 0) {
         free_glow_balls<<<1,1>>>(d_list, d_world, d_camera);
     } else if (image == 1) {
-        free_solar_system<<<1,1>>>(d_list,d_world,d_camera);
+        free_solar_system<<<1,1>>>(d_list, d_world, d_camera);
         checkCudaErrors(cudaFree(dev_mercury));
         checkCudaErrors(cudaFree(dev_venus));
         checkCudaErrors(cudaFree(dev_earth));
@@ -410,7 +473,9 @@ int main(int argc, char **argv)
         checkCudaErrors(cudaFree(dev_neptune));
         checkCudaErrors(cudaFree(dev_pluto));
         checkCudaErrors(cudaFree(dev_sun));
-    } else {
+    } else if (image == 2) {
+        free_pool_table<<<1,1>>>(d_list, d_world, d_camera);
+    }else {
         free_world<<<1,1>>>(d_list, d_world, d_camera);
     }
 
