@@ -10,3 +10,8 @@ cudart
 *.exp
 *.lib
 *.obj
+
+Standard/*.jpg
+Standard/*.ppm
+Cuda/*.jpg
+Cuda/*.ppm
