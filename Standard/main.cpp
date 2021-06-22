@@ -11,6 +11,7 @@
 #include "shader_consts.h"
 #include "render.h"
 #include "worlds.h"
+#include "omp.h"
 
 using namespace std::chrono;
 
@@ -23,44 +24,53 @@ int main(int argc, char **argv)
     int samples_per_pixel;
     int image_height;
     int image;
-
-    // TODO: Allow user to enter the number of threads on command line
     int num_threads = 1;
 
     if (argc < 5) {
-        image = 11; 
+        image = 11;
         image_width = 500;
         image_height = 300;
         samples_per_pixel = 500;
+    } else if (argc < 6) {
+        image = atoi(argv[1]);
+        image_width = atoi(argv[2]);
+        image_height = atoi(argv[3]);
+        samples_per_pixel = atoi(argv[4]);
     } else {
         image = atoi(argv[1]);
         image_width = atoi(argv[2]);
         image_height = atoi(argv[3]);
         samples_per_pixel = atoi(argv[4]);
+        num_threads = atoi(argv[5]);
     }
 
+    // Set number of threads if running multi-threaded
+    if (num_threads > 1)
+        omp_set_num_threads(num_threads);
+
+    // Aspect ratio dependent on width/height
     float aspect_ratio = float(image_width)/ (float(image_height));
 
-
+    // Record program time
     auto create_time_start = high_resolution_clock::now();
-    
+
     // World
     Hittable_List world;
     Camera cam;
     Color background;
-    
+
     switch(image) {
         case 0:
-            // Generate the earth 
+            // Generate the earth
             world = earf();
             cam = earf_cam(aspect_ratio);
             background = Color(0.70, 0.80, 1.00);
             break;
-            
+
         case 1:
             // Generate three balls
             world = three_balls();
-            cam = three_balls_cam(aspect_ratio); 
+            cam = three_balls_cam(aspect_ratio);
             background = Color(0.70, 0.80, 1.00);
             break;
 
@@ -77,7 +87,7 @@ int main(int argc, char **argv)
             cam = two_fuzzy_balls_cam(aspect_ratio);
             background = Color(0.70, 0.80, 1.00);
             break;
-            
+
 
         case 4:
             world = two_bit_balls();
@@ -99,7 +109,7 @@ int main(int argc, char **argv)
             cam = cornell_box_cam(aspect_ratio);
             background = Color(0, 0, 0);
             break;
-        
+
         case 7:
             world = cornell_smoke();
             aspect_ratio = 1.0;
@@ -145,7 +155,7 @@ int main(int argc, char **argv)
     // Output File
     std::fstream file;
     file.open("out.ppm", std::ios::out);
-    
+
     // Render
     auto render_time_start = high_resolution_clock::now();
     if (num_threads > 1)
