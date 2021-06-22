@@ -3,6 +3,7 @@
  */
 
 #include "render.h"
+#include "omp.h"
 
 Color rayColor(const Ray &r, const Color& background, const Hittable &world, int depth)
 {
@@ -65,6 +66,37 @@ void render(Color *image, int height, int width, int spp, int depth,
             image[j * width + i] = pixel_color;
         }
     }
+}
+
+void render_omp(Color *image, int height, int width, int spp, int depth,
+    Camera &cam, Hittable_List &world, Color &background)
+{
+
+    int i, j, s;
+    Color pixel_color;
+    Ray r;
+    float u, v;
+
+#pragma omp parallel shared(image, height, width, spp, depth, cam, world, background) private(j, i, s, pixel_color, r, u, v)
+{
+
+    #pragma omp for schedule(static) nowait
+    for (j = height - 1; j >= 0; j--) {
+        //std::cerr << "\rScaneline remaing: " << j << ' ' << std::flush;
+
+        for (i = 0; i < width; i++) {
+            pixel_color = Color(0, 0, 0);
+            for (s = 0; s < spp; s++) {
+                u = (i + random_float()) / (width - 1);
+                v = (j + random_float()) / (height - 1);
+                r = cam.get_ray(u, v);
+                pixel_color += rayColor(r, background, world, depth);
+            }
+
+            image[j * width + i] = pixel_color;
+        }
+    }
+}
 }
 
 void saveImage(std::ostream &out, Color *pixels, int height, int width, int spp)

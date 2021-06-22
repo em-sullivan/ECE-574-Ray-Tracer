@@ -17,6 +17,10 @@ void saveColor(std::ostream &out, Color pixelColor, int samples_per_pixel);
 void render(Color *image, int height, int width, int spp, int depth,
     Camera &cam, Hittable_List &world, Color &background);
 
+// Render image, store in color array
+void render_omp(Color *image, int height, int width, int spp, int depth,
+    Camera &cam, Hittable_List &world, Color &background);
+
 // Save pixels to a PPM file
 void saveImage(std::ostream &out, Color *pixels, int height, int width, int spp);
 

@@ -24,6 +24,9 @@ int main(int argc, char **argv)
     int image_height;
     int image;
 
+    // TODO: Allow user to enter the number of threads on command line
+    int num_threads = 1;
+
     if (argc < 5) {
         image = 11; 
         image_width = 500;
@@ -145,8 +148,12 @@ int main(int argc, char **argv)
     
     // Render
     auto render_time_start = high_resolution_clock::now();
-    render(image_pixels, image_height, image_width, samples_per_pixel, max_depth,
-        cam, world, background);
+    if (num_threads > 1)
+        render_omp(image_pixels, image_height, image_width, samples_per_pixel, max_depth,
+            cam, world, background);
+    else
+        render(image_pixels, image_height, image_width, samples_per_pixel, max_depth,
+            cam, world, background);
     auto render_time_end = high_resolution_clock::now();
 
     // Save image
